@@ -1,7 +1,7 @@
 # Darya
 
 **A satellite-driven digital twin for real-time flood monitoring and prediction of Pakistan's rivers.**
-*Darya* (دریا) is Urdu for "river". This is a Final Year Project at SEECS, NUST (Oct 2026 – Jun 2027).
+*Darya* (دریا) is Urdu for "river". 
 
 ## Why
 - Pakistan's river data is spread across agencies such as WAPDA, PMD-FFD, SUPARCO and IRSA. Each source updates at a different rate and covers a different part of the basin.
