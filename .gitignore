@@ -1,0 +1,52 @@
+# --- Data & reference docs (shared out-of-band, see docs/DATA.md) ---
+/data/
+/SatelliteDrivenDigitalTwinForRealTimeFloodMonitoringAndPrediction.pdf
+
+# --- Large artifacts (anywhere) ---
+*.tif
+*.tiff
+*.nc
+*.grib
+*.grib2
+*.zarr/
+*.pt
+*.pth
+*.ckpt
+*.onnx
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+
+# --- Environment / secrets ---
+.env
+.env.*
+!.env.example
+
+# --- Node / Next.js ---
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+npm-debug.log*
+pnpm-debug.log*
+yarn-error.log*
+
+# --- Logs & OS / editor ---
+*.log
+.DS_Store
+Thumbs.db
+.idea/
+
+# --- Claude Code (personal) ---
+CLAUDE.local.md
+.claude/settings.local.json
