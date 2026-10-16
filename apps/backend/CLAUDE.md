@@ -54,7 +54,26 @@ tests/
 - **API:**
   - Set the router tags and operation ids to clean names, because the frontend generates its typed client from `/openapi.json`.
   - Every response that carries a value also carries its timestamp, so the UI can show how fresh it is.
-- **Tests:** use pytest, with httpx `ASGITransport` for API tests. Parsers get tests with small fixture files taken from real raw data.
+- **Tests:** see the Tests section below.
+
+## Tests
+Tests use pytest and live in `tests/`, beside `app/`, not inside it. **The `tests/` tree mirrors `app/`**, so the tests for any module are easy to find.
+```
+tests/
+  conftest.py            shared setup (test DB session, API client)
+  fixtures/              small real sample files (e.g. a few WAPDA sheets)
+  core/                  tests for app/core/
+  models/                tests for app/models/
+  routes/                tests for app/routes/   (API tests)
+  ingest/wapda/          tests for app/ingest/wapda/
+  ...                    one folder per app/ module, added as modules appear
+```
+- **Naming:** test files are named `test_<thing>.py`, e.g. `tests/ingest/wapda/test_parser.py` tests `app/ingest/wapda/parser.py`. One test function checks one behaviour, and its name says what that behaviour is (`test_skips_stale_template_sheets`).
+- **Fast vs slow tests:**
+  - Unit tests are fast and use no database or network. Write these by default.
+  - Tests that need the database are marked `@pytest.mark.integration`. Run only the fast ones with `pytest -m "not integration"`.
+- **API tests** use httpx `ASGITransport` against the FastAPI app, with dependencies swapped through `app.dependency_overrides`.
+- **Fixtures:** files in `tests/fixtures/` are small extracts of real raw data. Never point tests at the full files in `data/`.
 
 ## Data parsing gotchas
 Before touching `ingest/wapda`, read the WAPDA section of `docs/DATA.md`. In short:

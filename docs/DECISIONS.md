@@ -73,6 +73,15 @@ This is a log of significant technical decisions, kept as lightweight ADRs.
   - The free tier has a 500 MB limit and pauses after about a week of inactivity.
   - We can move to any other PostgreSQL later, because nothing depends on Supabase-specific features.
 
+## ADR-008: Backend tests mirror the app layout
+- Date: 2026-10-16
+- Status: Accepted
+- Decision:
+  - `tests/` sits beside `app/` and mirrors its folders (`tests/ingest/wapda/` tests `app/ingest/wapda/`).
+  - Tests that need the database are tagged with the pytest marker `integration`, so we don't need separate `unit/` and `integration/` folders.
+  - `alembic/` and `alembic.ini` also sit beside `app/`.
+- Consequences: Tests for any module are easy to find, and fast tests run with `pytest -m "not integration"`. The details are in `apps/backend/CLAUDE.md`.
+
 ---
 
 ## Proposed (not yet decided)
