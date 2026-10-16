@@ -60,6 +60,19 @@ This is a log of significant technical decisions, kept as lightweight ADRs.
 - Decision: Use a plain `venv` and pinned `app/backend/requirements.txt`. Add geo and ML packages only when their ADRs are accepted.
 - Consequences: The setup is simple and familiar. Lockfile and dependency-group features (e.g. uv) are not used for now.
 
+## ADR-007: Supabase as hosted PostgreSQL for development
+- Date: 2026-10-16
+- Status: Accepted
+- Context: The team needs a shared PostgreSQL database without having to run a server.
+- Decision: Use a Supabase project (`darya-dev-db`, Mumbai region, free tier) **as plain PostgreSQL only**.
+  - The Data API is off and GitHub integration is not used.
+  - The backend connects through the Session pooler string kept in `.env`.
+  - Schema changes still go through Alembic.
+- Consequences:
+  - There is no database to host ourselves, and PostGIS is available as an extension.
+  - The free tier has a 500 MB limit and pauses after about a week of inactivity.
+  - We can move to any other PostgreSQL later, because nothing depends on Supabase-specific features.
+
 ---
 
 ## Proposed (not yet decided)
