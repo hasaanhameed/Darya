@@ -8,7 +8,7 @@ Read the root `CLAUDE.md` first for the domain rules (units, UTC, provenance).
 - Dependencies live in `requirements.txt`. Pin exact versions. FastAPI is still 0.x, so a minor bump can break things.
 
 ```bash
-cd app/backend
+cd apps/backend
 python -m venv .venv
 .venv\Scripts\activate          # Windows  (source .venv/bin/activate on Linux/macOS)
 pip install -r requirements.txt
