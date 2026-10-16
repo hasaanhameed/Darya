@@ -21,7 +21,9 @@ pip install -r requirements.txt
 | Tests | `pytest` |
 | Migrations | `alembic revision --autogenerate -m "<msg>"`, then `alembic upgrade head` |
 
-Configuration comes from environment variables, read through `pydantic-settings`. Put local values in `.env`, which is git-ignored. Keep `.env.example` committed and up to date.
+Configuration lives in `app/core/config.py`, which reads environment variables through `pydantic-settings`.
+- Put local values in `.env`, which is git-ignored. Keep `.env.example` committed and up to date.
+- `DATABASE_URL` must use the `postgresql+asyncpg://` scheme.
 
 ## Proposed layout
 The code is organised by domain. It is not scaffolded yet, so update this section when it is.
@@ -44,9 +46,13 @@ tests/
   - Use SQLAlchemy 2.x typed models (`Mapped[...]`).
   - Keep API shapes in Pydantic v2 schemas, separate from the models.
 - **Schema changes:** every schema change goes through an Alembic migration. Never change tables by hand.
-- **Async:**
-  - Use `async def` routes only for non-blocking I/O.
-  - CPU-heavy work, such as raster processing, model training or GNN inference, runs in scripts or worker jobs, not inside request handlers.
+- **Async database (ADR-009):** the DB layer is async, using SQLAlchemy `AsyncSession` and the asyncpg driver. The engine, `SessionLocal`, `Base` and `get_db` live in `app/core/database.py`.
+  - `await` every DB call (`await session.execute(...)`, `await session.commit()`).
+  - Never rely on lazy loading. Load related rows up front with `selectinload(...)`, or you'll get a `MissingGreenlet` error.
+  - Routes that touch the DB are `async def` and get their session from `Depends(get_db)`.
+  - Never call blocking code inside `async def`, e.g. `requests`, `time.sleep` or heavy pandas/model work. Use `httpx.AsyncClient` for downloads.
+  - CPU-heavy work, such as raster processing, model training or GNN inference, runs in separate scripts or worker processes, not inside request handlers.
+  - Async tests use `@pytest.mark.anyio`.
 - **Collectors:**
   - Each collector is idempotent: fetch raw data, store it untouched, parse, validate, then upsert. Re-running it for the same date must not create duplicates.
   - Validation flags bad values and does not silently drop them. Record why a row was rejected.

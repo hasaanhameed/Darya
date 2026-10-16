@@ -38,7 +38,7 @@ This is a log of significant technical decisions, kept as lightweight ADRs.
 - Date: 2026-10-15
 - Status: Accepted
 - Context: The twin needs relational data (nodes, reaches, forecasts), time series and, later, spatial queries.
-- Decision: Use PostgreSQL. Schema changes are made with Alembic migrations. Use the psycopg 3 driver.
+- Decision: Use PostgreSQL. Schema changes are made with Alembic migrations. Use the psycopg 3 driver. *(The driver is superseded by ADR-009, which uses asyncpg.)*
 - Consequences: Plain tables with `(node_id, observed_at)` indexes are enough at our scale. PostGIS and TimescaleDB can be added later without changing databases.
 
 ## ADR-004: Monorepo layout
@@ -81,6 +81,23 @@ This is a log of significant technical decisions, kept as lightweight ADRs.
   - Tests that need the database are tagged with the pytest marker `integration`, so we don't need separate `unit/` and `integration/` folders.
   - `alembic/` and `alembic.ini` also sit beside `app/`.
 - Consequences: Tests for any module are easy to find, and fast tests run with `pytest -m "not integration"`. The details are in `apps/backend/CLAUDE.md`.
+
+## ADR-009: Async database layer with asyncpg
+- Date: 2026-10-16
+- Status: Accepted
+- Context:
+  - Darya is meant to **grow past a demo** into a system agencies can rely on.
+  - Most of its runtime work is waiting on I/O: downloading from several sources, writing to the twin, and serving many dashboard users during a flood.
+  - In real use, large updates can arrive from several sources at once, and the twin should reflect them as soon as possible.
+  - Moving from sync to async later would mean rewriting every DB call, route and test. Choosing now, while the codebase is empty, costs almost nothing.
+- Decision:
+  - The backend uses async SQLAlchemy (`AsyncSession`), `async def` routes, and `httpx.AsyncClient` in collectors.
+  - The driver is **asyncpg**. psycopg's async mode doesn't work with Windows' default event loop, and asyncpg works everywhere with no extra setup.
+  - CPU-heavy work (forecasting, GNN, raster processing) still runs in separate worker processes. Async doesn't speed it up.
+- Consequences:
+  - Collectors can fetch from many sources in parallel, and the API handles high traffic efficiently.
+  - Code is a bit stricter: every DB call needs `await`, related rows must be loaded up front, and tests need anyio. These rules are in `apps/backend/CLAUDE.md`.
+  - Scaling beyond one process means adding more workers, and the database's connection limit becomes the next ceiling.
 
 ---
 

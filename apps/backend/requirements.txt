@@ -10,9 +10,9 @@ pydantic==2.14.1
 pydantic-settings==2.16.0
 
 # --- Database (PostgreSQL) ---
-sqlalchemy==2.1.4
+sqlalchemy[asyncio]==2.1.4
 alembic==1.20.0
-psycopg[binary]==3.3.6   # PostgreSQL driver (sync + async)
+asyncpg==0.32.0         # async PostgreSQL driver
 
 # --- Data ingestion ---
 httpx==0.28.1
