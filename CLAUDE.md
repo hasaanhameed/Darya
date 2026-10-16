@@ -48,7 +48,15 @@ Do not introduce a new framework or service without adding an ADR to `docs/DECIS
 ## Working rules
 - **Explain simply.** In chat, use a plain, easy-to-follow tone. Don't overcomplicate explanations.
 - **Write obvious code.** Names and logic should be clear enough to understand just by reading. Avoid clever tricks.
+- **Follow industry-standard structure.** Organise the repo the way well-maintained production projects do:
+  - Each module has one clear job and a clear boundary. Ingestion, the twin, forecasting, risk and the API stay separate.
+  - Tests and config go in their conventional places.
+  - Don't invent unusual layouts.
 - **Write only what's needed.** Before adding any code, ask "is this required?" Skip speculative helpers, options and abstractions.
+- **Let the developer decide.** When a choice comes up (stack, schema, approach, library):
+  - Don't pick on your own. Explain the options simply, with their trade-offs and your recommendation.
+  - Let the developer choose.
+  - Record the decision as an ADR in `docs/DECISIONS.md`.
 - **Commit messages** use the Conventional Commits format with an effective one-line summary, e.g. `feat: add WAPDA day-sheet parser`, `fix: skip stale template sheets`, `docs: update DATA.md coverage`. Other types: `refactor`, `test`, `chore`.
 - **One logical change per commit.** Group files that belong to the same change into one commit. Split unrelated changes into separate commits, even when they were made in the same session.
 - **IMPORTANT: never commit or push without explicit permission** from the user.
@@ -62,7 +70,6 @@ Do not introduce a new framework or service without adding an ADR to `docs/DECIS
 ## Workflow
 - Git branches off `main`. Every change is reviewed by another member before merge.
 - After finishing a meaningful task, add a dated line to `docs/PROGRESS.md`.
-- For any stack, schema or approach decision, add an ADR to `docs/DECISIONS.md`.
 - Keep docs short and current. Edit or replace stale text rather than appending contradictions.
 
 ## Commands
