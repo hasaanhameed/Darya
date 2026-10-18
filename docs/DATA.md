@@ -7,7 +7,7 @@ Raw data is **not in git**. Get it from the team drive and place it under `data/
 ## Source catalog
 | Source | Provides | Coverage | History / cadence | Access | Status |
 |---|---|---|---|---|---|
-| **WAPDA Hydel Synopsis** | Reservoir level, inflow and outflow at WAPDA dams and barrages | Tarbela, Ghazi Barotha, Mangla, Warsak, Chashma, Jinnah, Gomal Zam | Daily, Jul 2022 – Oct 2026 (with gaps) | Spreadsheets received from WAPDA | **Obtained** |
+| **WAPDA Hydel Synopsis** | Reservoir level, inflow and outflow at WAPDA dams and barrages | Tarbela, Ghazi Barotha, Mangla, Warsak, Chashma, Jinnah (Gomal Zam dropped, ADR-010) | Daily, Jul 2022 – Oct 2026 (with gaps) | Spreadsheets received from WAPDA | **Obtained** |
 | PMD-FFD | River discharge and flood category at key sites; flood thresholds | Main rivers, incl. the Chenab, Ravi, Sutlej and lower Indus barrages | Live map; PDF bulletins 2024–25 | ffd.pmd.gov.pk (no public API found) | To investigate |
 | FFC Daily Flood Situation Report | Inflow, outflow and flood class per structure | Main dams and barrages | Daily PDFs (seen for the 2022–23 monsoons) | `ffc.gov.pk/wp-content/uploads/YYYY/MM/DFSR-DD-MM-YYYY.pdf` | To investigate |
 | IRSA daily flows | Rim-station inflows and barrage flows | Tarbela, Mangla, Nowshera, Marala, Indus barrages | Daily | pakirsa.gov.pk (unreachable during research); republished in news | To investigate |
@@ -32,7 +32,7 @@ WAPDA publishes a daily report on its hydropower operations. Most of each report
 data/wapda/
   2022-23 (1).rar   2023-24.rar   2024-25.rar   2025-26.rar   2026-27.rar
 ```
-- Each `.rar` holds one folder per fiscal year (Jul–Jun), e.g. `2024-25/`, containing about 12 workbooks. There are 59 workbooks in total.
+- Each `.rar` holds one folder per fiscal year (Jul–Jun), e.g. `2024-25/`, containing up to 12 workbooks. There are **54 workbooks** in total (7 in 2022-23, 12 each in 2023-24 to 2025-26, 11 in 2026-27). About 104 MB extracted, almost all of it generation data we don't use.
 - To extract on Windows, run `tar -xf "data/wapda/2024-25.rar" -C data/wapda/extracted`. The built-in bsdtar can read RAR.
 - File names follow the pattern `<MONTH>- <YYYY> (<n>).xls[x]`, but the spelling, case and spacing vary, e.g. `JULY - 2022 (31).xlsx`, `April-2024 (30).xls`, `FEB- 2026  (28).xls`.
   - `<n>` is the number of days in the month, or the last day covered (e.g. `OCT- 2026 (07)`).
@@ -61,7 +61,9 @@ Do **not** use `Summary`, `Monthly`, `Comparison` or `Peak`. Their header dates 
 5. `WARSAK`
 6. `CHASHMA`
 7. `JINNAH`
-8. `GOMAL ZAM`
+8. `GOMAL ZAM` (dropped, see ADR-010)
+
+The header is on row 12 in every sheet except Aug 2026 sheet `12`, which is shifted down one row.
 
 | Col | Field | Unit | Notes |
 |---|---|---|---|
@@ -71,9 +73,9 @@ Do **not** use `Summary`, `Monthly`, `Comparison` or `Peak`. Their header dates 
 | E | Irrigation indent | cusecs | Often **free text**: `1 Feet Rise`, `10000 (Hourly)`, `8000 (Thal Canal only)`, `IF=OF/ Maint level 1550'`. Keep it as raw text |
 | I | **Inflow**, today | cusecs | |
 | K | Inflow, last year | cusecs | |
-| N | Outflow through turbines | cusecs | |
-| Q | Outflow through irrigation, spillway or tunnels | cusecs | Spillway use shows up here |
-| U | **Total outflow**, today | cusecs | Should equal N + Q |
+| N | Outflow through turbines | cusecs | The T-4 EXT row holds only this column: T-4's turbine flow |
+| Q | Outflow through irrigation, spillway or tunnels | cusecs | **Unreliable in floods:** spillway flow is often not entered here |
+| U | **Total outflow**, today | cusecs | **The outflow figure to trust.** Usually N + Q; for Tarbela, N + Q + T-4's N. In floods it can be far larger than N + Q (Chashma, 28 Aug 2022: 516,468 vs 17,433) |
 | W | Total outflow, last year | cusecs | |
 | Y–AP | Capability, max load, generation, load and plant factors | MW, GWh, % | Not needed for hydrology |
 | AQ–BC | WAPDA internal check columns (`Logic`, `Review/Next`) | | Ignore |
@@ -100,7 +102,7 @@ Do **not** use `Summary`, `Monthly`, `Comparison` or `Peak`. Their header dates 
 | **NJHP** | Neelum–Jhelum hydropower project |
 
 ### Coverage
-Counts are days whose `DATA FOR:` date matches the expected date (the month from the file name plus the day from the sheet name). There are **about 1,262 valid days out of 1,560** between 1 Jul 2022 and 7 Oct 2026.
+Counts are days whose `DATA FOR:` date matches the expected date (the month from the file name plus the day from the sheet name). **1,262 of the 1,319 day sheets** match, out of 1,560 calendar days between 1 Jul 2022 and 7 Oct 2026 (survey of 2026-10-18).
 
 | Year | Jan | Feb | Mar | Apr | May | Jun | Jul | Aug | Sep | Oct | Nov | Dec |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
@@ -112,45 +114,60 @@ Counts are days whose `DATA FOR:` date matches the expected date (the month from
 
 Key: `–` means no file, `✗` means the file is corrupt, and `1` means a single-day workbook only.
 
-**Back-filling:** the *last year* columns (D, K, W) give level, inflow and outflow for the same date one year earlier. They can partly fill these gaps (e.g. Feb–May 2023 from the 2024 sheets) and give data for Jul 2021 – Jun 2022.
+**Back-filling:** the *last year* columns (D, K, W) give level, inflow and outflow for the same date one year earlier.
+- They agree with the real value from a year earlier in 97% (level), 93% (inflow) and 97% (total outflow) of the cases that can be checked.
+- They can fill **467 days** with no direct sheet: Jul 2021 – Jun 2022, Feb–May 2023, Jul 2023, Aug 2023 (the corrupt file), Oct 2023, Dec 2023 and a few single days.
 
 ### Known quality issues
+Survey of 2026-10-18 over all 1,319 day sheets.
 - **Template leftovers:** sheet `31` in a 30-day month and sheets `29`–`31` in February hold the previous month's data. `Sheet4` and `Sheet5` hold 2018–19 data.
-- **Stale copies:** some day sheets were never updated and still hold an earlier day's data. The `DATA FOR:` date gives them away. Known cases:
-  - Nov 2023 days 8, 9, 15 and 22–24 (October data)
-  - Jan 2023 days 6, 7, 22, 24 and 28
-  - Aug 2026 days 10–11 (identical to July)
-  - Jul 2026 days 13 and 25–31 in the monthly file (2025 data). Days 25–31 exist as separate daily files.
-  - Oct 2026 days 8–31 (September data)
-  - Other single-day mismatches: Jun 2023 days 23–24, Sep 2024 days 21/27/28, Nov 2024 days 7/27, May 2025 day 17, Sep 2026 day 3
-- **Date typos:** sometimes the date cell is wrong but the data is genuine. For example, Sep 2025 sheet `6` is dated 2025-09-05 but holds data different from sheet `5`.
-  - Rule: a mismatched sheet is a stale copy if its values match the sheet for the date it claims. Otherwise flag it for review.
+- **Mis-dated sheets (57).** The `DATA FOR:` date doesn't match the expected date. They fall into three groups:
+  - **Stale copies (41):** identical to the sheet for the date they claim. They are Aug 2022 day 31; Jan 2023 days 6 and 24; Nov 2024 days 7 and 27; Sep 2024 day 28; Jul 2026 days 13 and 25–31 in the monthly file (2025 data; days 25–31 also exist as separate daily files); Aug 2026 days 10–11; Sep 2026 day 3; and Oct 2026 days 8–31.
+  - **One-day date typos (4):** the date is one day early, but the data differs from that day's sheet, so the data is genuine. They are Sep 2024 days 21 and 27, May 2025 day 17 and Sep 2025 day 6.
+  - **Copies from months with no file (12):** they claim a date for which we have no real sheet, so they are probably genuine data for that claimed date. They are Nov 2023 days 8, 9, 15 and 22–24 (October data); Jan 2023 days 7, 22 and 28 (December 2022 data); Jun 2023 day 24 (May data); and Jun 2023 day 23 and Aug 2022 day 30 (both claim the next day).
+- **Hidden copy:** Apr 2025 days 14 and 15 are identical, even though both carry correct dates. Only a value comparison catches this.
+- **Typos (57 values across the 6 kept stations, under 1%):** decimal slips and missing or extra digits, e.g. Tarbela inflow `1107000`, Chashma level `6486`, Mangla level `121.3`, Warsak level `0.5`, and negative inflows. Some are on flood peaks. A few cells are unparseable text (`120.4.95`, `15.49.27`, `1076..30`, `46+464`), and some hold `#REF!` or `#DIV/0!`.
+- **Gomal Zam** is the noisiest station. It has a repeated placeholder level (`2084.98`) and some flows converted from m³/s (`35.3147` = 1 m³/s). It was dropped in ADR-010.
 - **Corrupt file:** `2023-24/AUG- 2023 (31).xls` is a truncated OLE file and cannot be opened.
-- **Manual typos:** e.g. a Mangla level written `121.3` instead of ~1213, or `120.4.95` stored as text. There are also `#REF!` and `#DIV/0!` errors in some cells.
-- **Layout drift:** the Aug 2026 sheet `12` is shifted down by one row, and a stray numeric row sometimes appears after `GOMAL ZAM`.
+- **Layout drift:** the Aug 2026 sheet `12` is shifted down by one row, with a stray `DATA FOR: -1` on row 1 above the real date on row 2. A stray numeric row sometimes appears after `GOMAL ZAM`.
+- **Date cell formats:** a datetime (939 sheets), an Excel serial number (286) or a `dd-mm-yyyy` string (111).
 
 ### Parsing rules
+These follow ADR-010.
 1. Read only the day sheets (`1`…`31`) and `Synopsis`.
-2. The expected date comes from the file name's month and year plus the sheet name's day. Skip day numbers that don't exist in that month.
-3. Read the `DATA FOR:` cell. If it doesn't match the expected date, mark the row `date_mismatch` and don't use it for training until it has been reviewed.
-4. Locate the header row by finding `POWER STATIONS` in column A. Then find station rows **by name**, normalising aliases (`G/BAROTHA` → `ghazi_barotha`, `T-4 EXT:` → `tarbela_t4`).
-5. Coerce values to numbers. Keep the raw text when coercion fails. Check ranges per station (level band, flow ≥ 0, `total ≈ turbine + other`).
-6. Flag problems; don't drop them silently. Each record carries its `source_file`, `sheet` and the list of issues found.
+2. The expected date comes from the file name's month and year plus the sheet name's day. For a single-day workbook, the day is the `(n)` in its file name. Skip day numbers that don't exist in that month.
+3. Locate the header row by finding `POWER STATIONS` in column A. Then find station rows **by name**, normalising aliases (`G/BAROTHA` → `ghazi_barotha`, `T-4 EXT:` → `tarbela_t4`). Stop after the station block.
+4. Read the `DATA FOR:` date by searching above the header, not at a fixed cell, and take the first value that is a real date. When it doesn't match the expected date:
+   - If the sheet is identical to the sheet for its claimed date, it is a stale copy. Skip it.
+   - If the claimed date has no real sheet, use the claimed date and flag the row `date_from_sheet`.
+   - Otherwise the claimed date has its own, different data, so the date cell is a typo. Use the expected date and flag `date_typo`.
+   - If no date can be read at all, use the expected date and flag `date_unreadable`.
+5. Coerce values to numbers, keeping the raw text when coercion fails. Flag a value `suspect` when it jumps far from its neighbouring days or is negative. Never correct values.
+6. Treat total outflow (U) as the outflow figure. A mismatch with turbine + other is only a note, because spillway flow is often missing from Q. T-4 is used only for this check on Tarbela.
+7. Flag problems; don't drop them silently. Each record carries its `source_file`, `sheet` and the list of issues found.
 
-### Target normalized record
-One row per station per day:
-```
-station, date, level_ft, level_ft_last_year,
-inflow_cfs, inflow_cfs_last_year,
-outflow_turbine_cfs, outflow_other_cfs, outflow_total_cfs, outflow_total_cfs_last_year,
-indent_raw, source_file, sheet, date_in_sheet, flags
-```
+### Flags
+Each row in `daily_observations` has a `flags` list. Rows with any flag marked **exclude** must be left out of training and scoring.
+
+| Flag | Meaning | Exclude? |
+|---|---|---|
+| `suspect_level_ft`, `suspect_inflow_cfs`, `suspect_outflow_total_cfs` | Far from the station's neighbouring days (level > 15 ft away from the 7-day median; flow > 3× and > 5,000 cfs away), or a negative flow. Value kept as written | **exclude** |
+| `not_numeric_<field>` | The cell held text that isn't a number (e.g. `120.4.95`); the value is empty | **exclude** |
+| `repeated_previous_day` | The whole sheet is identical to the previous day's | **exclude** |
+| `date_from_sheet` | A sheet copied from a month with no file; stored under the date written in it | no |
+| `date_typo` | The date cell was wrong; stored under the expected date | no |
+| `date_unreadable` | No date could be read; stored under the expected date | no |
+| `outflow_sum_mismatch` | Total outflow ≠ turbine + other (+ T-4 for Tarbela). Common in floods; total outflow is still trusted | no |
+
+The first full run (2026-10-18) kept 7,668 rows (1,278 days × 6 stations).
 
 ### Fit with the prototype scope
 **Covered:**
 - Upper Indus: Tarbela → Ghazi Barotha → Jinnah → Chashma
 - Kabul: Warsak
 - Jhelum: Mangla
+
+Gomal Zam is in the files but is dropped (ADR-010).
 
 **Not covered:**
 - The Chenab, Ravi and Sutlej

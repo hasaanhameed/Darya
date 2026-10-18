@@ -99,6 +99,23 @@ This is a log of significant technical decisions, kept as lightweight ADRs.
   - Code is a bit stricter: every DB call needs `await`, related rows must be loaded up front, and tests need anyio. These rules are in `apps/backend/CLAUDE.md`.
   - Scaling beyond one process means adding more workers, and the database's connection limit becomes the next ceiling.
 
+## ADR-010: WAPDA data scope and cleaning rules
+- Date: 2026-10-18
+- Status: Accepted
+- Context:
+  - A full survey of the 54 WAPDA workbooks (1,319 day sheets) found under 1% typo values, 41 stale copied sheets, and sheets copied from months that have no file of their own. Details are in `docs/DATA.md`.
+  - WAPDA data is historical, not live. It serves as ground truth for training and evaluating forecasts, so bad values directly distort scores.
+- Decision:
+  - **Gomal Zam is dropped.** It isn't on the river graph, and it is the noisiest station (most typos, a repeated placeholder level, some flows converted from m³/s). WAPDA ingestion covers 6 stations: Tarbela, Ghazi Barotha, Mangla, Warsak, Chashma and Jinnah. T-4 EXT is read only to check Tarbela's total outflow.
+  - **Typos are flagged, never corrected.** A value far from its neighbouring days is kept as written and marked `suspect`. Training and evaluation ignore suspect values.
+  - **Stale copies are skipped.** A sheet identical to the sheet for the date it claims is not stored.
+  - **Copied sheets from months with no file use the sheet's own date.** If a sheet's `DATA FOR:` date is about a month or more earlier and no real sheet exists for that date, its data is stored under that date and marked `date_from_sheet`.
+  - **Date typos use the expected date.** If the claimed date has its own sheet with different data, the date cell is treated as the typo (all 4 cases are one day off).
+- Consequences:
+  - The prototype loses Gomal Zam. It can be added back later from the same files if needed.
+  - Every stored value can be traced to its file and sheet, and every change in how a value was read is visible through its flag.
+  - The rules need a short manual review of the flagged rows before the first load.
+
 ---
 
 ## Proposed (not yet decided)
