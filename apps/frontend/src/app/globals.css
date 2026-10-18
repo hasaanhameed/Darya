@@ -13,6 +13,20 @@
   --color-rule-strong: rgba(27, 33, 38, 0.24);
   --color-wash: rgba(27, 33, 38, 0.05);
 
+  /* The frame around the map takes its color from the river: deep water for the header,
+     shallow water for the rail. Only the risk colors and the reach lines are strong. */
+  --color-deep: #15324a;
+  --color-deep-ink: #e8eff4;
+  --color-deep-ink-2: #b4c6d4;
+  --color-deep-rule: rgba(232, 239, 244, 0.16);
+  --color-shallows: #e3ebf0;
+  --color-shallows-2: #d3dfe7;
+  --color-shallows-3: #c6d5e0;
+
+  /* Basemap tints, applied to the OpenFreeMap style in RiverMap. Hex copies live there. */
+  --color-map-land: #e7e5da;
+  --color-map-water: #b9d2e4;
+
   --color-risk-normal: #1f66a3;
   --color-risk-low: #dc9130;
   --color-risk-medium: #d07226;

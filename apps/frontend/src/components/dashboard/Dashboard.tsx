@@ -4,8 +4,11 @@ import dynamic from "next/dynamic";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { AlertList } from "@/components/alerts/AlertList";
+import { RAIL_WIDTH, RailResizeHandle, useRailWidth } from "@/components/dashboard/RailResizeHandle";
+import { MapKey } from "@/components/legend/MapKey";
 import { ReachPanel } from "@/components/reach/ReachPanel";
 import { RiverSchematic } from "@/components/schematic/RiverSchematic";
+import { Collapsible } from "@/components/ui/Collapsible";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useActiveAlerts, useNetwork, useNodeStates, useReachRisks } from "@/lib/api/hooks";
 import { nodeById, reachName } from "@/lib/network";
@@ -16,7 +19,7 @@ const RiverMap = dynamic(() => import("@/components/map/RiverMap"), {
   loading: () => <Skeleton className="size-full rounded-none" />,
 });
 
-/** The map dashboard: alerts and the river schematic on the left, the map on the right. */
+/** The map dashboard: a resizable rail (alerts, river schematic) on the left, the map with its key on the right. */
 export function Dashboard() {
   const router = useRouter();
   const pathname = usePathname();
@@ -27,6 +30,7 @@ export function Dashboard() {
   const risks = useReachRisks();
   const states = useNodeStates();
   const alerts = useActiveAlerts();
+  const [railWidth, setRailWidth] = useRailWidth();
 
   // The selected reach lives in the URL, so a view can be shared by copying the link.
   function selectReach(reachId: string | null) {
@@ -45,43 +49,45 @@ export function Dashboard() {
   const selectedReach = network.data?.reaches.find((r) => r.id === selectedReachId);
 
   return (
-    <div className="grid min-h-0 flex-1 grid-cols-[300px_1fr]">
-      <aside aria-label="Alerts and river system" className="flex min-h-0 flex-col overflow-y-auto border-r border-rule bg-sheet">
-        <section className="pt-4">
-          <h2 className="px-4 pb-2 text-title font-semibold">
-            Active alerts{alerts.data ? ` (${alerts.data.length})` : ""}
-          </h2>
-          {alerts.isPending || !network.data ? (
-            <div className="flex flex-col gap-2 px-4">
-              <Skeleton className="h-12" />
-              <Skeleton className="h-12" />
-            </div>
-          ) : alerts.isError ? (
-            <p className="px-4 text-ink-2">{alerts.error.message}</p>
-          ) : (
-            <AlertList alerts={alerts.data} network={network.data} onSelectReach={selectReach} />
-          )}
-        </section>
+    <div className="grid min-h-0 flex-1" style={{ gridTemplateColumns: `${railWidth}px 1fr` }}>
+      <div className="relative min-h-0">
+        <aside
+          aria-label="Alerts and river system"
+          className="flex h-full flex-col overflow-y-auto border-r border-rule bg-shallows"
+        >
+          <Collapsible title="Active alerts" aside={alerts.data && <Count value={alerts.data.length} />}>
+            {alerts.isPending || !network.data ? (
+              <div className="flex flex-col gap-2 p-4">
+                <Skeleton className="h-12" />
+                <Skeleton className="h-12" />
+              </div>
+            ) : alerts.isError ? (
+              <p className="px-4 py-3 text-ink-2">{alerts.error.message}</p>
+            ) : (
+              <AlertList alerts={alerts.data} network={network.data} onSelectReach={selectReach} />
+            )}
+          </Collapsible>
 
-        <section className="pt-6 pb-6">
-          <h2 className="px-4 pb-3 text-title font-semibold">River system</h2>
-          {network.data && risks.data && states.data ? (
-            <RiverSchematic
-              network={network.data}
-              risks={risks.data}
-              states={states.data}
-              selectedReachId={selectedReachId}
-              onSelectReach={selectReach}
-            />
-          ) : (
-            <div className="flex flex-col gap-2 px-4">
-              {Array.from({ length: 8 }, (_, i) => (
-                <Skeleton key={i} className="h-8" />
-              ))}
-            </div>
-          )}
-        </section>
-      </aside>
+          <Collapsible title="River system" aside={<span className="text-meta font-normal text-ink-2">upstream at top</span>}>
+            {network.data && risks.data && states.data ? (
+              <RiverSchematic
+                network={network.data}
+                risks={risks.data}
+                states={states.data}
+                selectedReachId={selectedReachId}
+                onSelectReach={selectReach}
+              />
+            ) : (
+              <div className="flex flex-col gap-2 p-4">
+                {Array.from({ length: 8 }, (_, i) => (
+                  <Skeleton key={i} className="h-8" />
+                ))}
+              </div>
+            )}
+          </Collapsible>
+        </aside>
+        <RailResizeHandle width={railWidth} onChange={setRailWidth} />
+      </div>
 
       <div className="relative min-h-0">
         {network.data && risks.data ? (
@@ -93,6 +99,14 @@ export function Dashboard() {
           />
         ) : (
           <Skeleton className="size-full rounded-none" />
+        )}
+
+        {risks.data && (
+          <div className="absolute top-3 left-3 z-10 w-64 overflow-hidden rounded-panel border border-rule bg-sheet">
+            <Collapsible title="Key">
+              <MapKey risks={risks.data} />
+            </Collapsible>
+          </div>
         )}
 
         {selectedReach && nodes && (
@@ -108,6 +122,14 @@ export function Dashboard() {
         )}
       </div>
     </div>
+  );
+}
+
+function Count({ value }: { value: number }) {
+  return (
+    <span className="min-w-6 rounded-control bg-deep px-1.5 text-center text-meta font-semibold text-deep-ink tabular-nums">
+      {value}
+    </span>
   );
 }
 
@@ -128,8 +150,8 @@ function ApiUnavailable({ message }: { message: string }) {
 
 export function DashboardSkeleton() {
   return (
-    <div className="grid min-h-0 flex-1 grid-cols-[300px_1fr]">
-      <div className="flex flex-col gap-2 border-r border-rule bg-sheet p-4">
+    <div className="grid min-h-0 flex-1" style={{ gridTemplateColumns: `${RAIL_WIDTH.default}px 1fr` }}>
+      <div className="flex flex-col gap-2 border-r border-rule bg-shallows p-4">
         <Skeleton className="h-6 w-40" />
         <Skeleton className="h-12" />
         <Skeleton className="h-12" />

@@ -30,24 +30,24 @@ export function ReachPanel({ reach, name, fromNode, risk, state, onClose }: Reac
   return (
     <aside
       aria-label={`${name} details`}
-      className="absolute inset-y-0 right-0 z-10 flex w-100 flex-col overflow-y-auto border-l border-rule bg-sheet"
+      className="absolute inset-y-0 right-0 z-10 flex w-90 flex-col overflow-y-auto border-l border-rule bg-sheet"
     >
-      <header className="flex items-start justify-between gap-4 px-4 pt-4">
+      <header className="flex items-start justify-between gap-4 border-b border-rule bg-shallows px-4 py-3">
         <div>
           <h2 className="text-title font-semibold">{name}</h2>
-          <p className="text-ink-2">{reach.river}</p>
+          <p className="text-ink-2">{reach.river} river</p>
         </div>
         <button
           type="button"
           onClick={onClose}
           aria-label="Close reach details"
-          className="-m-2 rounded-control p-2 text-ink-2 hover:bg-wash hover:text-ink"
+          className="-m-2 rounded-control p-2 text-ink-2 hover:bg-shallows-2 hover:text-ink"
         >
           <XIcon size={18} />
         </button>
       </header>
 
-      <section className="flex flex-col gap-1 px-4 pt-6">
+      <section className="flex flex-col gap-1 px-4 pt-4">
         {risk ? (
           <>
             <RiskBadge category={risk.category} size="focal" />
@@ -95,9 +95,9 @@ export function ReachPanel({ reach, name, fromNode, risk, state, onClose }: Reac
               </tr>
             </thead>
             <tbody className="divide-y divide-rule">
-              <ValueRow label="Inflow" reading={state?.inflow_cfs} unit="cfs" format={formatCfs} />
-              <ValueRow label="Outflow" reading={state?.outflow_cfs} unit="cfs" format={formatCfs} />
-              <ValueRow label="Level" reading={state?.level_ft} unit="ft" format={formatFt} />
+              <ValueRow label="Flow in" reading={state?.inflow_cfs} unit="cusecs" format={formatCfs} />
+              <ValueRow label="Flow out" reading={state?.outflow_cfs} unit="cusecs" format={formatCfs} />
+              <ValueRow label="Water level" reading={state?.level_ft} unit="ft" format={formatFt} />
             </tbody>
           </table>
         ) : (

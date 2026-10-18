@@ -47,14 +47,15 @@ Later, `/state`, `/risk` and `/reaches/{id}/series` will take an `at` query para
 src/
   app/            routes, layout, global styles and design tokens (globals.css)
   components/
-    dashboard/    the map page: rail + map + reach panel
+    dashboard/    the map page: resizable rail + map + reach panel
+    legend/       the map key
     map/          MapLibre map (client-only) and node marker shapes
     schematic/    the river line diagram in the left rail
     alerts/       alert list
     reach/        reach panel, risk badge, threshold staff
     charts/       observed + forecast chart with uncertainty band
     layout/       header, disclaimer line, sample-data banner
-    ui/           small shared pieces (skeleton)
+    ui/           small shared pieces (skeleton, collapsible section)
   lib/
     api/          types, the fetch client, query hooks, sample data
     format/       units and PKT time formatting

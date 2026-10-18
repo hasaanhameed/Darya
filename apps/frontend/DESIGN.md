@@ -8,7 +8,7 @@ Read this before any UI work. Part 1 is the design system: what to use. Part 2 i
 A duty officer at FFD, WAPDA or a provincial irrigation department, at a desk during the monsoon. They need to see in seconds which reach is in trouble, how bad it is, how sure the forecast is, and when it will happen.
 It should feel **calm and exact, like a control-room schematic**.
 
-**The idea:** water is blue, danger is warm, and everything else is quiet grey.
+**The idea:** water is blue, danger is warm. The frame around the map takes its color from the river (deep water for the header, shallow water for the rail), so the page is never a sheet of white.
 
 ## Signature elements
 - **River schematic.** The left rail draws the river system as a vertical line diagram, with upstream at the top. Nodes are stations on the line, and each reach segment is colored by its risk.
@@ -31,6 +31,11 @@ Defined once in `src/app/globals.css` (Tailwind `@theme`). Never write raw hex i
 | `channel` | `#1F66A3` | **Water only**: river lines at Normal, water extent, focus ring |
 | `rule` | `rgba(27,33,38,0.12)` | Hairline borders |
 | `rule-strong` | `rgba(27,33,38,0.24)` | Input outlines, the schematic line |
+| `deep` | `#15324A` | Header and disclaimer line, count chips |
+| `deep-ink` / `deep-ink-2` | `#E8EFF4` / `#B4C6D4` | Text on `deep` |
+| `shallows` | `#E3EBF0` | Left rail, reach panel header |
+| `shallows-2` / `shallows-3` | `#D3DFE7` / `#C6D5E0` | Section header bars, hover. Only `ink` and `ink-2` text on these |
+| `map-land` / `map-water` | `#E7E5DA` / `#B9D2E4` | Basemap tint (copied as hex in `RiverMap`) |
 
 ### Risk scale (PMD-FFD categories)
 | Normal | Low | Medium | High | Very High | Exceptional |
@@ -40,7 +45,7 @@ Defined once in `src/app/globals.css` (Tailwind `@theme`). Never write raw hex i
 - **Normal** uses the river color, because a normal river is just water.
 - **Low to Exceptional** is one warm ramp that gets darker as the risk rises. It passed the dataviz ordinal check on both `silt` and `sheet`: lightness steps evenly, it stays in one hue family, and the light end is above 2:1.
 - Normal and Low stay clearly apart under colorblind simulation (ΔE 25).
-- **Risk color is never shown alone.** Always pair it with the category name, because Low is only 2.3:1 on silt.
+- **Risk color is never shown without a way to read it.** Lists (alerts, schematic) show a color square or segment and rely on the key on the map; the category name is always in the accessible label and the hover title. The reach panel names the category in text.
 - No traffic-light green/yellow/red.
 
 ## Type
@@ -60,7 +65,7 @@ Defined once in `src/app/globals.css` (Tailwind `@theme`). Never write raw hex i
   - Values: 600, `ink`
   - Labels: 500, `ink-2`
   - Metadata: 400, `ink-3`
-- **Numbers:** tabular figures (`tabular-nums`) in tables, lists and charts. Units follow the value in smaller `ink-2` text, e.g. **312,400** cfs.
+- **Numbers:** tabular figures (`tabular-nums`) in tables, lists and charts. Units follow the value in smaller `ink-2` text, e.g. **312,400** cusecs. Show flow as "cusecs" (the word WAPDA and FFD use), never "cfs". Field names in code keep `_cfs`.
 - **Text:** sentence case everywhere. No ALL-CAPS labels.
 
 ## Space, depth, corners, motion
@@ -80,16 +85,17 @@ Defined once in `src/app/globals.css` (Tailwind `@theme`). Never write raw hex i
 ## Layout
 - **`/` (map dashboard):**
   - Header (48px), then a disclaimer line.
-  - Left rail (300px): active alerts, then the river schematic.
+  - Left rail (272px by default, drag or arrow keys to resize from 220 to 480px, remembered per browser): collapsible "Active alerts" and "River system" sections. Each river in the schematic collapses too, and shows its highest risk when closed.
+  - The key (risk colors with counts, station shapes, what a cusec is) sits in a collapsible box at the top-left of the map.
   - The map fills the rest of the screen. The time slider runs along the bottom.
-- **Reach panel:** 400px wide, over the right side of the map.
+- **Reach panel:** 360px wide, over the right side of the map.
   - The risk level is the focal point (29px/600, at the top).
   - Then the reasons, current values with their update times, the threshold staff, the chart, and the sources.
 - **Tables (e.g. `/alerts`):** plain rows separated by hairlines. Show the category as a small color square plus its name. Rows have no left stripe and are not cards.
 - **Alignment:** everything is left-aligned. Numbers in table columns are right-aligned.
 
 ## Map
-- **Basemap:** OpenFreeMap Positron, which is muted. Rivers and risk colors are the only strong color on the map.
+- **Basemap:** OpenFreeMap Positron, tinted with `map-land` and `map-water`, with place names faded. Rivers and risk colors are the only strong color on the map.
 - **Reaches:** lines colored by risk, 3px wide (4px when selected). An invisible 16px line on top gives a bigger click target.
 - **Node markers:** small custom shapes by type, in `ink` on `sheet`.
 

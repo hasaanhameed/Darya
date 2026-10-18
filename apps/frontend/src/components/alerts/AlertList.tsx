@@ -2,10 +2,9 @@
 
 import { useState } from "react";
 
-import { RiskBadge } from "@/components/reach/RiskBadge";
 import type { Alert, RiverNetwork } from "@/lib/api/types";
 import { nodeById, reachName } from "@/lib/network";
-import { riskRank } from "@/lib/risk/categories";
+import { RISK_COLOR, RISK_LABEL, riskRank } from "@/lib/risk/categories";
 
 // The rail shows the most severe alerts first and keeps room for the river schematic below.
 const COLLAPSED_COUNT = 3;
@@ -22,7 +21,7 @@ export function AlertList({ alerts, network, onSelectReach }: AlertListProps) {
   const reaches = new Map(network.reaches.map((r) => [r.id, r]));
 
   if (alerts.length === 0) {
-    return <p className="px-4 text-ink-2">No active alerts.</p>;
+    return <p className="px-4 py-3 text-ink-2">No active alerts.</p>;
   }
 
   const sorted = [...alerts].sort((a, b) => riskRank(b.category) - riskRank(a.category));
@@ -31,7 +30,7 @@ export function AlertList({ alerts, network, onSelectReach }: AlertListProps) {
 
   return (
     <div>
-      <ul className="divide-y divide-rule border-y border-rule">
+      <ul className="divide-y divide-rule">
         {visible.map((alert) => {
           const reach = reaches.get(alert.reach_id);
           return (
@@ -39,13 +38,19 @@ export function AlertList({ alerts, network, onSelectReach }: AlertListProps) {
               <button
                 type="button"
                 onClick={() => onSelectReach(alert.reach_id)}
-                className="flex w-full flex-col px-4 py-2 text-left hover:bg-wash"
+                className="flex w-full items-start gap-2.5 px-4 py-2 text-left hover:bg-shallows-2"
               >
-                <span className="flex items-baseline justify-between gap-2">
+                {/* The color square is read with the key above; screen readers get the level as text. */}
+                <span
+                  className="mt-1.25 size-2.5 shrink-0 rounded-[2px]"
+                  style={{ backgroundColor: RISK_COLOR[alert.category] }}
+                  title={`${RISK_LABEL[alert.category]} risk`}
+                />
+                <span className="flex flex-col">
                   <span className="font-medium">{reach ? reachName(reach, nodes) : alert.reach_id}</span>
-                  <RiskBadge category={alert.category} />
+                  <span className="sr-only">{RISK_LABEL[alert.category]} risk.</span>
+                  <span className="text-meta text-ink-2">{alert.message}</span>
                 </span>
-                <span className="text-meta text-ink-2">{alert.message}</span>
               </button>
             </li>
           );
@@ -56,7 +61,7 @@ export function AlertList({ alerts, network, onSelectReach }: AlertListProps) {
           type="button"
           onClick={() => setExpanded(!expanded)}
           aria-expanded={expanded}
-          className="px-4 pt-2 font-medium text-channel hover:underline"
+          className="px-4 py-2 font-medium text-channel hover:underline"
         >
           {expanded ? "Show fewer" : `Show ${hiddenCount} more`}
         </button>

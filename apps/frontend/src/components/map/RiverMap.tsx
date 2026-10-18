@@ -33,10 +33,20 @@ const NETWORK_BOUNDS: [[number, number], [number, number]] = [
   [75.0, 34.6],
 ];
 
-/** Fade the basemap's place names so rivers, nodes and risk colors stay the strongest thing on the map. */
-function quietBasemapLabels(event: MapEvent) {
+// Copies of the map-land and map-water tokens in globals.css (MapLibre can't read CSS variables).
+const MAP_LAND = "#e7e5da";
+const MAP_WATER = "#b9d2e4";
+
+/**
+ * Tint the near-white Positron basemap: warm land, blue water, faded place names.
+ * Rivers, nodes and risk colors stay the strongest thing on the map.
+ */
+function tintBasemap(event: MapEvent) {
   const map = event.target;
   for (const layer of map.getStyle().layers) {
+    if (layer.type === "background") map.setPaintProperty(layer.id, "background-color", MAP_LAND);
+    if (layer.type === "fill" && layer.id.startsWith("water")) map.setPaintProperty(layer.id, "fill-color", MAP_WATER);
+    if (layer.type === "line" && layer.id.startsWith("waterway")) map.setPaintProperty(layer.id, "line-color", MAP_WATER);
     if (layer.type === "symbol") map.setPaintProperty(layer.id, "text-opacity", 0.55);
   }
 }
@@ -86,7 +96,7 @@ export default function RiverMap({ network, risks, selectedReachId, onSelectReac
     <Map
       initialViewState={{ bounds: NETWORK_BOUNDS, fitBoundsOptions: { padding: 32 } }}
       mapStyle={BASEMAP_STYLE}
-      onLoad={quietBasemapLabels}
+      onLoad={tintBasemap}
       interactiveLayerIds={["reach-hit"]}
       onClick={handleClick}
       onMouseEnter={() => setCursor("pointer")}

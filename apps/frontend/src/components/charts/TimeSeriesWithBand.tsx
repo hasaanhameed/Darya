@@ -91,13 +91,13 @@ function ChartTooltip({ active, payload }: TooltipContentProps) {
     <div className="rounded-control border border-rule bg-sheet px-2 py-1 text-meta tabular-nums">
       <div className="font-medium">{formatDay(row.date)}</div>
       {row.observed !== undefined && row.band === undefined && (
-        <div>Observed {formatCfs(row.observed * 1000)} cfs</div>
+        <div>Observed {formatCfs(row.observed * 1000)} cusecs</div>
       )}
       {row.band && (
         <>
-          <div>Forecast {formatCfs((row.forecast ?? 0) * 1000)} cfs</div>
+          <div>Forecast {formatCfs((row.forecast ?? 0) * 1000)} cusecs</div>
           <div className="text-ink-2">
-            Range {formatCfs(row.band[0] * 1000)} to {formatCfs(row.band[1] * 1000)} cfs
+            Range {formatCfs(row.band[0] * 1000)} to {formatCfs(row.band[1] * 1000)} cusecs
           </div>
         </>
       )}
