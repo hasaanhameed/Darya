@@ -15,7 +15,7 @@ def make_observation(**overrides) -> DailyObservation:
     values = dict(
         node_id="tarbela",
         observed_on=dt.date(2022, 8, 28),
-        source="wapda_hydel_synopsis",
+        source="test_source",  # not a real source, so it never clashes with loaded data
         inflow_cfs=264700.0,
         source_file="AUG - 2022 (31).xlsx",
         sheet="28",
@@ -43,7 +43,9 @@ async def test_allows_same_node_day_from_another_source(db_session):
     await db_session.flush()
 
     count = await db_session.scalar(
-        select(func.count()).select_from(DailyObservation).where(DailyObservation.node_id == "tarbela")
+        select(func.count())
+        .select_from(DailyObservation)
+        .where(DailyObservation.source.in_(["test_source", "another_source"]))
     )
     assert count == 2
 
