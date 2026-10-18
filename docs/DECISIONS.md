@@ -116,6 +116,18 @@ This is a log of significant technical decisions, kept as lightweight ADRs.
   - Every stored value can be traced to its file and sheet, and every change in how a value was read is visible through its flag.
   - The rules need a short manual review of the flagged rows before the first load.
 
+## ADR-011: Shared daily observation tables
+- Date: 2026-10-18
+- Status: Accepted
+- Context: Several sources (WAPDA now; FFC, IRSA, GloFAS and others later) report daily values for the same river points. One table per source would make every comparison and every API query join several tables.
+- Decision:
+  - `nodes` holds the river points (slug id, name, river, approximate location). It is seeded with the 6 WAPDA stations.
+  - `daily_observations` holds one row per node, per day, per source, with a `source` column. The unique key is `(node_id, observed_on, source)`, so different sources for the same day sit side by side.
+  - Its value columns follow the WAPDA structure for now (level, inflow, turbine, other and total outflow, irrigation indent) and are extended by migration when another source needs more.
+  - Values keep their native units. Each row carries `flags`, `source_file`, `sheet` and `ingested_at`.
+  - A source's loader replaces only its own rows (delete by `source`, then insert), so re-running a load is safe and never touches other sources.
+- Consequences: One query covers all sources. The WAPDA-shaped columns will need changes once a source with different variables (e.g. discharge in m³/s, rainfall) arrives.
+
 ---
 
 ## Proposed (not yet decided)
