@@ -37,14 +37,14 @@
 ## Stack
 | | |
 |---|---|
-| **Confirmed** | FastAPI (Python) backend, Next.js frontend, PostgreSQL |
-| **Planned** | PostGIS, PyTorch + PyTorch Geometric, Rasterio/GDAL/GeoPandas, MapLibre map, Docker Compose |
+| **Confirmed** | FastAPI (Python) backend, Next.js frontend with a MapLibre map, PostgreSQL |
+| **Planned** | PostGIS, PyTorch + PyTorch Geometric, Rasterio/GDAL/GeoPandas, Docker Compose |
 
 Decisions are tracked in [docs/DECISIONS.md](docs/DECISIONS.md).
 
 ## Repository layout
 ```
-app/
+apps/
   backend/     FastAPI service: ingestion, twin, forecasting, risk, API
   frontend/    Next.js dashboard
 data/          raw and derived data (git-ignored; see docs/DATA.md)
@@ -59,8 +59,8 @@ docs/          project documentation
 | [docs/DATA.md](docs/DATA.md) | you work with any data source (including the raw WAPDA files) |
 | [docs/DECISIONS.md](docs/DECISIONS.md) | you make or question a technical choice |
 | [docs/PROGRESS.md](docs/PROGRESS.md) | you want to see where the project stands |
-| [app/backend/CLAUDE.md](app/backend/CLAUDE.md) | you work on the backend |
-| [app/frontend/DESIGN.md](app/frontend/DESIGN.md) | you work on the dashboard UI |
+| [apps/backend/CLAUDE.md](apps/backend/CLAUDE.md) | you work on the backend |
+| [apps/frontend/DESIGN.md](apps/frontend/DESIGN.md) | you work on the dashboard UI |
 
 ## Getting started
 The code is not scaffolded yet. Setup steps will be added here.

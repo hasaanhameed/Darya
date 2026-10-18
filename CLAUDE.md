@@ -6,13 +6,12 @@ It collects satellite, rainfall and river data and keeps a versioned state per r
 ## Stack
 - **Confirmed:**
   - FastAPI backend (Python)
-  - Next.js frontend
+  - Next.js frontend, with MapLibre, Tailwind 4, TanStack Query and Recharts (ADR-010 to ADR-016)
   - PostgreSQL
 - **Planned, not yet decided:**
   - PostGIS
   - PyTorch + PyG
   - Rasterio/GDAL/GeoPandas
-  - MapLibre
   - Docker Compose
   - a job scheduler
 
@@ -21,8 +20,8 @@ Do not introduce a new framework or service without adding an ADR to `docs/DECIS
 ## Repo map
 | Path | Contents |
 |---|---|
-| `app/backend/` | FastAPI service. Read `app/backend/CLAUDE.md` before working here. |
-| `app/frontend/` | Next.js dashboard. Read `app/frontend/DESIGN.md` before any UI work. |
+| `apps/backend/` | FastAPI service. Read `apps/backend/CLAUDE.md` before working here. |
+| `apps/frontend/` | Next.js dashboard. Read `apps/frontend/DESIGN.md` before any UI work. |
 | `data/` | Raw and derived data. Git-ignored, and may be absent on a fresh clone. |
 | `docs/` | Project documentation. Read the relevant file when a task touches it (table below). |
 
@@ -73,6 +72,5 @@ Do not introduce a new framework or service without adding an ADR to `docs/DECIS
 - Keep docs short and current. Edit or replace stale text rather than appending contradictions.
 
 ## Commands
-<!-- Fill in once the backend and frontend are scaffolded. -->
-- Backend: see `app/backend/CLAUDE.md`.
-- Frontend: TBD.
+- Backend: see `apps/backend/CLAUDE.md`.
+- Frontend: from `apps/frontend`, run `npm run dev` (http://localhost:3000), `npm test`, `npm run lint` and `npm run build`. The details, including sample-data mode, are in `apps/frontend/README.md`.

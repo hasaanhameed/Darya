@@ -57,13 +57,17 @@ Link canals transfer water between rivers, e.g. Chashma-Jhelum, Taunsa-Panjnad a
 
 ## Codemap
 <!-- Update this as code lands. Name modules; don't hyperlink (links rot). -->
-- **`app/backend`**: FastAPI service. The layout is organised by domain (see `app/backend/CLAUDE.md`).
+- **`apps/backend`**: FastAPI service. The layout is organised by domain (see `apps/backend/CLAUDE.md`).
   - `ingest/<source>`: one collector per source. Each fetches raw data, stores it unchanged, then parses and validates it.
   - `twin`: node, reach and graph models, plus versioned state updates.
   - `forecast`: baselines (persistence, historical mean, regression), LSTM and GNN *(planned: PyTorch + PyG)*.
   - `risk`: maps values to flood categories, generates reasons and applies alert rules.
   - `api`: routers and Pydantic schemas. Its OpenAPI output is the contract with the frontend.
-- **`app/frontend`**: Next.js dashboard (see `app/frontend/DESIGN.md`).
+- **`apps/frontend`**: Next.js dashboard (see `apps/frontend/DESIGN.md` and `apps/frontend/README.md`).
+  - `lib/api`: the only code that calls the backend. It holds the response types, the fetch client and the query hooks, plus a sample-data mode for development.
+  - `components/map`: the MapLibre map, which is client-only.
+  - `components/schematic`: the river line diagram.
+  - `components/reach`: the reach panel and the threshold staff.
 - **Satellite processing** *(planned)*: Sentinel-1 preprocessing and water masks. This runs as batch scripts or worker jobs, not inside request handlers.
 
 ## Invariants

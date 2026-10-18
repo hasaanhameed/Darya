@@ -30,9 +30,11 @@ The first priority is a thin end-to-end slice: one river, one data source of eac
 - [ ] Send the historical gauge data request (2015 onward) to FFD/WAPDA through our advisor
 - [ ] Confirm the data sources and access accounts: Copernicus EWDS, CDSE or Planetary Computer, NASA Earthdata
 - [ ] Decide on the proposed ADRs that block M2 (PostGIS, scheduler, Sentinel-1 platform)
-- [ ] Scaffold the backend (FastAPI app, settings, DB connection, Alembic) and frontend (Next.js)
+- [ ] Scaffold the backend (FastAPI app, settings, DB connection, Alembic)
+- [ ] Frontend: time slider, `/alerts` page, then the node, reach, sources, about, evaluation, terms and privacy pages
 - [ ] Write the WAPDA parser and load Jul 2022 – Oct 2026 into PostgreSQL
 
 ## Log
+- **2026-10-18** (Rohail): Scaffolded the frontend in `apps/frontend`: the map dashboard with the river schematic, active alerts and reach panel (threshold staff and forecast chart). It uses sample data until the API exists. Frontend stack is ADR-010 to ADR-016, and the design system is in `apps/frontend/DESIGN.md`.
 - **2026-10-15**: Initialized the context docs (README, CLAUDE.md files, docs/*), `.gitignore` and `app/backend/requirements.txt`. Surveyed the WAPDA raw data: 59 workbooks, about 1,262 valid days between Jul 2022 and Oct 2026. Structure and quality issues are in `docs/DATA.md`.
 - **Before 2026-10-15**: Proposal approved. WAPDA daily hydel synopsis data obtained for Jul 2022 – Oct 2026.
