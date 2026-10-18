@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+/* Design tokens. The source of truth is apps/frontend/DESIGN.md.
+   Risk colors are repeated in src/lib/risk/categories.ts for the map, keep both in sync. */
+@theme {
+  --color-silt: #f1f2ef;
+  --color-sheet: #fafaf8;
+  --color-ink: #1b2126;
+  --color-ink-2: #46515a;
+  --color-ink-3: #5f6b74;
+  --color-channel: #1f66a3;
+  --color-rule: rgba(27, 33, 38, 0.12);
+  --color-rule-strong: rgba(27, 33, 38, 0.24);
+  --color-wash: rgba(27, 33, 38, 0.05);
+
+  --color-risk-normal: #1f66a3;
+  --color-risk-low: #dc9130;
+  --color-risk-medium: #d07226;
+  --color-risk-high: #bc561e;
+  --color-risk-very-high: #9a3b18;
+  --color-risk-exceptional: #672514;
+
+  --font-sans: var(--font-plex-sans), system-ui, sans-serif;
+
+  /* Type scale, ratio 1.2 */
+  --text-meta: 12px;
+  --text-meta--line-height: 16px;
+  --text-body: 14px;
+  --text-body--line-height: 20px;
+  --text-title: 17px;
+  --text-title--line-height: 24px;
+  --text-page: 20px;
+  --text-page--line-height: 28px;
+  --text-heading: 24px;
+  --text-heading--line-height: 32px;
+  --text-focal: 29px;
+  --text-focal--line-height: 36px;
+
+  --radius-control: 4px;
+  --radius-panel: 6px;
+  --radius-dialog: 8px;
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background: var(--color-silt);
+  color: var(--color-ink);
+  font-size: var(--text-body);
+  line-height: var(--text-body--line-height);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-channel);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
