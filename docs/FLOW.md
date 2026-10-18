@@ -32,12 +32,12 @@ sequenceDiagram
 ## A. Ingestion (scheduled, per source)
 | # | Step | Detail |
 |---|---|---|
-| A1 | Trigger | The scheduler runs each collector on that source's cadence. WAPDA, FFD and IRSA are daily. IMERG runs every few hours. GloFAS is daily. |
+| A1 | Trigger | The scheduler runs each collector on that source's cadence. FFD and IRSA are daily. IMERG runs every few hours. GloFAS is daily. **WAPDA is a one-time historical load, run by hand:** `python -m scripts.ingest_wapda` from `apps/backend` (add `--dry-run` to only write `data/wapda/processed/review.csv`). |
 | A2 | Fetch | Download the new data and store it **unchanged** in the raw area, recording source, URL or file and fetch time. |
-| A3 | Parse | Turn the source format (xls, PDF, HTML, NetCDF, GRIB) into records. WAPDA rules are in `docs/DATA.md`. |
-| A4 | Validate | Check the date, unit and range, plus cross-checks such as total outflow = turbine + other. Flag problems; don't silently drop records. |
-| A5 | Normalize | Map each record to a node or reach id and a standard field name with its unit. Upsert so that re-running a job is safe. |
-| A6 | Output | `Observation` rows with `source`, `observed_at`, `ingested_at` and `flags`. |
+| A3 | Parse | Turn the source format (xls, PDF, HTML, NetCDF, GRIB) into a DataFrame of records. WAPDA: `ingest/wapda/sheet_finder.py` and `sheet_parser.py`, rules in `docs/DATA.md`. |
+| A4 | Validate | Check the date, unit and range, plus cross-checks such as total outflow = turbine + other. Flag problems; don't silently drop records. WAPDA: `ingest/wapda/cleaning.py`. |
+| A5 | Normalize | Map each record to a node id and a standard field name with its unit. Re-running must be safe: a source's loader replaces only its own rows (ADR-018). WAPDA: `ingest/wapda/load_to_db.py`. |
+| A6 | Output | `daily_observations` rows with `source`, `observed_on`, `ingested_at` and `flags` (meanings in `docs/DATA.md`). |
 
 ## B. Satellite water detection (when a new Sentinel-1 scene covers the study area)
 | # | Step | Detail |

@@ -18,28 +18,32 @@ pip install -r requirements.txt
 | Task | Command |
 |---|---|
 | Run API | `uvicorn app.main:app --reload` (docs at `/docs`) |
-| Tests | `pytest` |
+| Tests | `pytest` (fast only: `pytest -m "not integration"`) |
 | Migrations | `alembic revision --autogenerate -m "<msg>"`, then `alembic upgrade head` |
+| WAPDA load | `python -m scripts.ingest_wapda` (`--dry-run` writes only `data/wapda/processed/review.csv`) |
 
 Configuration lives in `app/core/config.py`, which reads environment variables through `pydantic-settings`.
 - Put local values in `.env`, which is git-ignored. Keep `.env.example` committed and up to date.
 - `DATABASE_URL` must use the `postgresql+asyncpg://` scheme.
 
-## Proposed layout
-The code is organised by domain. It is not scaffolded yet, so update this section when it is.
+## Layout
+The code is organised by domain. Folders marked *(planned)* don't exist yet.
 ```
 app/
-  main.py          FastAPI app factory, router registration
-  core/            settings, DB engine/session, logging
-  ingest/<source>/ one package per data source (wapda, ffd, glofas, imerg, sentinel1, ...)
-  twin/            reach/node models, state updates, history
-  forecast/        baselines, LSTM/GNN wrappers, forecast runs
-  risk/            category mapping, reasons, alert rules
-  api/             routers + Pydantic request/response schemas
+  main.py          FastAPI app factory, router registration (planned)
+  core/            settings, async DB engine/session
+  models/          SQLAlchemy tables: Node, DailyObservation
+  routes/          API routers + Pydantic request/response schemas (empty)
+  ingest/wapda/    station_aliases → sheet_finder → sheet_parser → cleaning → load_to_db
+  ingest/<source>/ one package per further source (ffd, glofas, imerg, ...) (planned)
+  twin/            reach state updates, history (planned)
+  forecast/        baselines, LSTM/GNN wrappers, forecast runs (planned)
+  risk/            category mapping, reasons, alert rules (planned)
 alembic/           migrations
-scripts/           one-off / CLI jobs (backfills, training, extraction)
+scripts/           CLI jobs, e.g. ingest_wapda.py
 tests/
 ```
+The API never imports `ingest`. Only scripts (and a scheduler, later) call it.
 
 ## Conventions
 - **Models and schemas:**
