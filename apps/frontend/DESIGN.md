@@ -1,6 +1,112 @@
 # Design: Darya dashboard
 
-The full design system is TBD. Until it's written, follow the rules below.
+Read this before any UI work. Part 1 is the design system: what to use. Part 2 is the list of things never to use. Stack choices are in `docs/DECISIONS.md` (ADR-010 to ADR-016).
+
+# Part 1: Design system
+
+## Who it is for
+A duty officer at FFD, WAPDA or a provincial irrigation department, at a desk during the monsoon. They need to see in seconds which reach is in trouble, how bad it is, how sure the forecast is, and when it will happen.
+It should feel **calm and exact, like a control-room schematic**.
+
+**The idea:** water is blue, danger is warm, and everything else is quiet grey.
+
+## Signature elements
+- **River schematic.** The left rail draws the river system as a vertical line diagram, with upstream at the top. Nodes are stations on the line, and each reach segment is colored by its risk.
+  - This is the style of diagram IRSA and WAPDA use.
+  - It works as navigation, and as a keyboard- and screen-reader-friendly alternative to the map.
+- **Threshold staff.** A vertical bar modeled on the painted gauge staff at a barrage.
+  - It shows the site's FFD flood limits (from `docs/DATA.md`).
+  - A solid marker shows the current flow, and a hollow marker shows the forecast peak.
+
+## Color tokens
+Defined once in `src/app/globals.css` (Tailwind `@theme`). Never write raw hex in components.
+
+| Token | Hex | Use |
+|---|---|---|
+| `silt` | `#F1F2EF` | Page background |
+| `sheet` | `#FAFAF8` | Panels, tables, charts |
+| `ink` | `#1B2126` | Primary text (14.5:1 on silt) |
+| `ink-2` | `#46515A` | Labels, secondary text (7.2:1) |
+| `ink-3` | `#5F6B74` | Timestamps and metadata (4.9:1, the lowest allowed for text) |
+| `channel` | `#1F66A3` | **Water only**: river lines at Normal, water extent, focus ring |
+| `rule` | `rgba(27,33,38,0.12)` | Hairline borders |
+| `rule-strong` | `rgba(27,33,38,0.24)` | Input outlines, the schematic line |
+
+### Risk scale (PMD-FFD categories)
+| Normal | Low | Medium | High | Very High | Exceptional |
+|---|---|---|---|---|---|
+| `#1F66A3` | `#DC9130` | `#D07226` | `#BC561E` | `#9A3B18` | `#672514` |
+
+- **Normal** uses the river color, because a normal river is just water.
+- **Low to Exceptional** is one warm ramp that gets darker as the risk rises. It passed the dataviz ordinal check on both `silt` and `sheet`: lightness steps evenly, it stays in one hue family, and the light end is above 2:1.
+- Normal and Low stay clearly apart under colorblind simulation (ΔE 25).
+- **Risk color is never shown alone.** Always pair it with the category name, because Low is only 2.3:1 on silt.
+- No traffic-light green/yellow/red.
+
+## Type
+- **Font:** IBM Plex Sans (ADR-014), with weights 400, 500 and 600. There is no second family, and monospace is never used for data.
+- **Scale:** ratio 1.2. Use only these sizes.
+
+| px | Use |
+|---|---|
+| 12 | Timestamps, units, captions |
+| 14 | Body and table text |
+| 17 | Panel titles |
+| 20 | Page titles |
+| 24 | Major page headings |
+| 29 | The single focal value on a screen (e.g. a reach's risk level) |
+
+- **Hierarchy** comes from weight and color before size:
+  - Values: 600, `ink`
+  - Labels: 500, `ink-2`
+  - Metadata: 400, `ink-3`
+- **Numbers:** tabular figures (`tabular-nums`) in tables, lists and charts. Units follow the value in smaller `ink-2` text, e.g. **312,400** cfs.
+- **Text:** sentence case everywhere. No ALL-CAPS labels.
+
+## Space, depth, corners, motion
+- **Spacing:** 4px base.
+  - 8–12px inside controls
+  - 16px panel padding
+  - 24px between groups
+- **Depth:** borders only. Surfaces are flat. A popover gets one hairline ring and no soft shadow.
+- **Corners:** 4px on controls and chips, 6px on panels, 8px on dialogs.
+- **Motion:**
+  - Only for data or map updates and for skeletons.
+  - Under 200ms, using `cubic-bezier(0.23, 1, 0.32, 1)`.
+  - Off when the user has reduced motion enabled.
+  - No hover animation. A hover changes color only.
+- **Focus:** a 2px `channel` outline with a 2px offset on every interactive element.
+
+## Layout
+- **`/` (map dashboard):**
+  - Header (48px), then a disclaimer line.
+  - Left rail (300px): active alerts, then the river schematic.
+  - The map fills the rest of the screen. The time slider runs along the bottom.
+- **Reach panel:** 400px wide, over the right side of the map.
+  - The risk level is the focal point (29px/600, at the top).
+  - Then the reasons, current values with their update times, the threshold staff, the chart, and the sources.
+- **Tables (e.g. `/alerts`):** plain rows separated by hairlines. Show the category as a small color square plus its name. Rows have no left stripe and are not cards.
+- **Alignment:** everything is left-aligned. Numbers in table columns are right-aligned.
+
+## Map
+- **Basemap:** OpenFreeMap Positron, which is muted. Rivers and risk colors are the only strong color on the map.
+- **Reaches:** lines colored by risk, 3px wide (4px when selected). An invisible 16px line on top gives a bigger click target.
+- **Node markers:** small custom shapes by type, in `ink` on `sheet`.
+
+| Node type | Shape |
+|---|---|
+| Dam | Square |
+| Barrage / headworks | Diamond |
+| Gauge | Circle |
+| Confluence | Small dot |
+
+## Copy
+- Use plain, specific sentences.
+- Times are shown in PKT and labeled "PKT".
+- Every value has its unit.
+- Alerts and risk text follow the research-prototype framing and never sound like an official warning.
+
+# Part 2: Never use these
 
 ## Avoid the "vibe-coded" look
 Darya should look like a serious tool built for flood agencies, not a generic AI-generated template. Don't use any of the following unless the team explicitly decides otherwise.
