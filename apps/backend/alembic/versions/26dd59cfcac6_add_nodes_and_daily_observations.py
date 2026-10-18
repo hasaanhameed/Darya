@@ -17,7 +17,7 @@ down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
-# The stations covered by WAPDA data (ADR-010). Coordinates are approximate (docs/DATA.md).
+# The stations covered by WAPDA data (ADR-017). Coordinates are approximate (docs/DATA.md).
 WAPDA_NODES = [
     {"id": "tarbela", "name": "Tarbela Dam", "river": "Indus", "lat": 34.09, "lon": 72.69},
     {"id": "ghazi_barotha", "name": "Ghazi Barotha Barrage", "river": "Indus", "lat": 33.98, "lon": 72.65},

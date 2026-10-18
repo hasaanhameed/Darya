@@ -1,5 +1,5 @@
 # Station names as written in column A of a WAPDA day sheet → our node ids.
-# Gomal Zam is left out on purpose (ADR-010). "tarbela_t4" is not a node: its turbine
+# Gomal Zam is left out on purpose (ADR-017). "tarbela_t4" is not a node: its turbine
 # flow is only used to check Tarbela's total outflow.
 STATION_ALIASES = {
     "TARBELA": "tarbela",

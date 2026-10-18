@@ -34,6 +34,6 @@ The first priority is a thin end-to-end slice: one river, one data source of eac
 - [ ] Write the WAPDA parser and load Jul 2022 – Oct 2026 into PostgreSQL
 
 ## Log
-- **2026-10-18**: Surveyed all 54 extracted WAPDA workbooks (1,319 day sheets). Updated the quality issues and parsing rules in `docs/DATA.md`, and recorded the scope and cleaning rules as ADR-010.
+- **2026-10-18**: Surveyed all 54 extracted WAPDA workbooks (1,319 day sheets). Updated the quality issues and parsing rules in `docs/DATA.md`, and recorded the scope and cleaning rules as ADR-017.
 - **2026-10-15**: Initialized the context docs (README, CLAUDE.md files, docs/*), `.gitignore` and `app/backend/requirements.txt`. Surveyed the WAPDA raw data: 59 workbooks, about 1,262 valid days between Jul 2022 and Oct 2026. Structure and quality issues are in `docs/DATA.md`.
 - **Before 2026-10-15**: Proposal approved. WAPDA daily hydel synopsis data obtained for Jul 2022 – Oct 2026.

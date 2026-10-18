@@ -99,7 +99,7 @@ def test_returns_rows_for_six_stations_without_t4():
     assert set(rows["node_id"]) == set(STATION_LEVELS_FT)
 
 
-# --- dates (ADR-010) ---
+# --- dates (ADR-017) ---
 
 def test_keeps_sheet_whose_date_matches_with_no_flags():
     rows, _ = clean(make_sheet(dt.date(2024, 8, 15)))

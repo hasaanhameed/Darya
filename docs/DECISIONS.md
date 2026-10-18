@@ -99,7 +99,7 @@ This is a log of significant technical decisions, kept as lightweight ADRs.
   - Code is a bit stricter: every DB call needs `await`, related rows must be loaded up front, and tests need anyio. These rules are in `apps/backend/CLAUDE.md`.
   - Scaling beyond one process means adding more workers, and the database's connection limit becomes the next ceiling.
 
-## ADR-010: WAPDA data scope and cleaning rules
+## ADR-017: WAPDA data scope and cleaning rules
 - Date: 2026-10-18
 - Status: Accepted
 - Context:
@@ -116,7 +116,7 @@ This is a log of significant technical decisions, kept as lightweight ADRs.
   - Every stored value can be traced to its file and sheet, and every change in how a value was read is visible through its flag.
   - The rules need a short manual review of the flagged rows before the first load.
 
-## ADR-011: Shared daily observation tables
+## ADR-018: Shared daily observation tables
 - Date: 2026-10-18
 - Status: Accepted
 - Context: Several sources (WAPDA now; FFC, IRSA, GloFAS and others later) report daily values for the same river points. One table per source would make every comparison and every API query join several tables.

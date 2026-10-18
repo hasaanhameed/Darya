@@ -7,7 +7,7 @@ Raw data is **not in git**. Get it from the team drive and place it under `data/
 ## Source catalog
 | Source | Provides | Coverage | History / cadence | Access | Status |
 |---|---|---|---|---|---|
-| **WAPDA Hydel Synopsis** | Reservoir level, inflow and outflow at WAPDA dams and barrages | Tarbela, Ghazi Barotha, Mangla, Warsak, Chashma, Jinnah (Gomal Zam dropped, ADR-010) | Daily, Jul 2022 – Oct 2026 (with gaps) | Spreadsheets received from WAPDA | **Obtained** |
+| **WAPDA Hydel Synopsis** | Reservoir level, inflow and outflow at WAPDA dams and barrages | Tarbela, Ghazi Barotha, Mangla, Warsak, Chashma, Jinnah (Gomal Zam dropped, ADR-017) | Daily, Jul 2022 – Oct 2026 (with gaps) | Spreadsheets received from WAPDA | **Obtained** |
 | PMD-FFD | River discharge and flood category at key sites; flood thresholds | Main rivers, incl. the Chenab, Ravi, Sutlej and lower Indus barrages | Live map; PDF bulletins 2024–25 | ffd.pmd.gov.pk (no public API found) | To investigate |
 | FFC Daily Flood Situation Report | Inflow, outflow and flood class per structure | Main dams and barrages | Daily PDFs (seen for the 2022–23 monsoons) | `ffc.gov.pk/wp-content/uploads/YYYY/MM/DFSR-DD-MM-YYYY.pdf` | To investigate |
 | IRSA daily flows | Rim-station inflows and barrage flows | Tarbela, Mangla, Nowshera, Marala, Indus barrages | Daily | pakirsa.gov.pk (unreachable during research); republished in news | To investigate |
@@ -61,7 +61,7 @@ Do **not** use `Summary`, `Monthly`, `Comparison` or `Peak`. Their header dates 
 5. `WARSAK`
 6. `CHASHMA`
 7. `JINNAH`
-8. `GOMAL ZAM` (dropped, see ADR-010)
+8. `GOMAL ZAM` (dropped, see ADR-017)
 
 The header is on row 12 in every sheet except Aug 2026 sheet `12`, which is shifted down one row.
 
@@ -127,13 +127,13 @@ Survey of 2026-10-18 over all 1,319 day sheets.
   - **Copies from months with no file (12):** they claim a date for which we have no real sheet, so they are probably genuine data for that claimed date. They are Nov 2023 days 8, 9, 15 and 22–24 (October data); Jan 2023 days 7, 22 and 28 (December 2022 data); Jun 2023 day 24 (May data); and Jun 2023 day 23 and Aug 2022 day 30 (both claim the next day).
 - **Hidden copy:** Apr 2025 days 14 and 15 are identical, even though both carry correct dates. Only a value comparison catches this.
 - **Typos (57 values across the 6 kept stations, under 1%):** decimal slips and missing or extra digits, e.g. Tarbela inflow `1107000`, Chashma level `6486`, Mangla level `121.3`, Warsak level `0.5`, and negative inflows. Some are on flood peaks. A few cells are unparseable text (`120.4.95`, `15.49.27`, `1076..30`, `46+464`), and some hold `#REF!` or `#DIV/0!`.
-- **Gomal Zam** is the noisiest station. It has a repeated placeholder level (`2084.98`) and some flows converted from m³/s (`35.3147` = 1 m³/s). It was dropped in ADR-010.
+- **Gomal Zam** is the noisiest station. It has a repeated placeholder level (`2084.98`) and some flows converted from m³/s (`35.3147` = 1 m³/s). It was dropped in ADR-017.
 - **Corrupt file:** `2023-24/AUG- 2023 (31).xls` is a truncated OLE file and cannot be opened.
 - **Layout drift:** the Aug 2026 sheet `12` is shifted down by one row, with a stray `DATA FOR: -1` on row 1 above the real date on row 2. A stray numeric row sometimes appears after `GOMAL ZAM`.
 - **Date cell formats:** a datetime (939 sheets), an Excel serial number (286) or a `dd-mm-yyyy` string (111).
 
 ### Parsing rules
-These follow ADR-010.
+These follow ADR-017.
 1. Read only the day sheets (`1`…`31`) and `Synopsis`.
 2. The expected date comes from the file name's month and year plus the sheet name's day. For a single-day workbook, the day is the `(n)` in its file name. Skip day numbers that don't exist in that month.
 3. Locate the header row by finding `POWER STATIONS` in column A. Then find station rows **by name**, normalising aliases (`G/BAROTHA` → `ghazi_barotha`, `T-4 EXT:` → `tarbela_t4`). Stop after the station block.
@@ -167,7 +167,7 @@ The first full run (2026-10-18) kept 7,668 rows (1,278 days × 6 stations).
 - Kabul: Warsak
 - Jhelum: Mangla
 
-Gomal Zam is in the files but is dropped (ADR-010).
+Gomal Zam is in the files but is dropped (ADR-017).
 
 **Not covered:**
 - The Chenab, Ravi and Sutlej

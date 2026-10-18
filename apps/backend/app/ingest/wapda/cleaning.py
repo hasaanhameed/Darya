@@ -1,4 +1,4 @@
-"""Turn parsed WAPDA sheets into clean, flagged rows (rules in ADR-010 and docs/DATA.md).
+"""Turn parsed WAPDA sheets into clean, flagged rows (rules in ADR-017 and docs/DATA.md).
 
 Values are never corrected. Each rule adds a True/False column, and at the end those columns
 become the `flags` list of each row, so problems can be reviewed and filtered.
@@ -99,7 +99,7 @@ def summarise_sheets(raw: pd.DataFrame) -> pd.DataFrame:
 
 
 def assign_dates(sheets: pd.DataFrame, report: CleaningReport) -> pd.DataFrame:
-    """Decide which day each sheet describes, using the date written in it (ADR-010)."""
+    """Decide which day each sheet describes, using the date written in it (ADR-017)."""
     expected, claimed = sheets["expected_date"], sheets["date_in_sheet"]
     matching = sheets[claimed == expected]
 
