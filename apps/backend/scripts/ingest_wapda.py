@@ -2,15 +2,19 @@
 
 Run from apps/backend:
     python -m scripts.ingest_wapda --dry-run     # write data/wapda/processed/review.csv, no database
+    python -m scripts.ingest_wapda               # also replace the WAPDA rows in daily_observations
 """
 
 import argparse
+import asyncio
 from collections import defaultdict
 from pathlib import Path
 
 import pandas as pd
 
+from app.core.database import SessionLocal, engine
 from app.ingest.wapda.cleaning import CleaningReport, clean_sheets
+from app.ingest.wapda.load_to_db import load_rows
 from app.ingest.wapda.sheet_finder import find_day_sheets
 from app.ingest.wapda.sheet_parser import parse_sheet, read_grids
 
@@ -52,14 +56,18 @@ def print_summary(raw: pd.DataFrame, unreadable: list[Path], rows: pd.DataFrame,
     print(rows["flags"].explode().value_counts().sort_index().to_string())
 
 
+async def load_into_database(rows: pd.DataFrame) -> int:
+    async with SessionLocal() as session:
+        inserted = await load_rows(session, rows)
+    await engine.dispose()
+    return inserted
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--data-dir", type=Path, default=DEFAULT_DATA_DIR, help="folder with the extracted workbooks")
     parser.add_argument("--dry-run", action="store_true", help="write a review CSV instead of loading the database")
     args = parser.parse_args()
-
-    if not args.dry_run:
-        raise SystemExit("Loading into the database isn't built yet. Use --dry-run.")
 
     raw, unreadable = read_all_sheets(args.data_dir)
     rows, report = clean_sheets(raw)
@@ -68,6 +76,11 @@ def main() -> None:
     review_file = args.data_dir / "processed" / "review.csv"
     write_review_file(rows, review_file)
     print(f"Review file: {review_file}")
+
+    if not args.dry_run:
+        # parsing and cleaning above are blocking pandas work, so only the database step runs async
+        inserted = asyncio.run(load_into_database(rows))
+        print(f"Loaded {inserted} rows into daily_observations")
 
 
 if __name__ == "__main__":
