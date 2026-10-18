@@ -53,10 +53,12 @@ tests/
   - Never call blocking code inside `async def`, e.g. `requests`, `time.sleep` or heavy pandas/model work. Use `httpx.AsyncClient` for downloads.
   - CPU-heavy work, such as raster processing, model training or GNN inference, runs in separate scripts or worker processes, not inside request handlers.
   - Async tests use `@pytest.mark.anyio`.
+- **Data handling uses pandas.** Parsing, cleaning and reshaping work on DataFrames, the same way for every source, so the pipelines look alike. Prefer column operations and boolean masks over loops through rows.
 - **Collectors:**
   - Each collector is idempotent: fetch raw data, store it untouched, parse, validate, then upsert. Re-running it for the same date must not create duplicates.
   - Validation flags bad values and does not silently drop them. Record why a row was rejected.
 - **Naming:** units go in names (`inflow_cfs`, `level_ft`, `storage_maf`). Station and node IDs are stable lowercase slugs (`tarbela`, `ghazi_barotha`).
+- **File names:** a module's name says what it does, e.g. `sheet_finder.py`, `sheet_parser.py`, `load_to_db.py`. Avoid vague names such as `utils.py`, `helpers.py`, `common.py`, `misc.py`, or single generic words like `files.py` and `load.py`.
 - **API:**
   - Set the router tags and operation ids to clean names, because the frontend generates its typed client from `/openapi.json`.
   - Every response that carries a value also carries its timestamp, so the UI can show how fresh it is.

@@ -157,6 +157,35 @@ This is a log of significant technical decisions, kept as lightweight ADRs.
   - Browser end-to-end tests (e.g. Playwright) are left for later, when the pages are stable.
 - Consequences: Nothing extra to install, which matches the backend's plain pip setup (ADR-006). There are no browser tests yet.
 
+## ADR-017: WAPDA data scope and cleaning rules
+- Date: 2026-10-18
+- Status: Accepted
+- Context:
+  - A full survey of the 54 WAPDA workbooks (1,319 day sheets) found under 1% typo values, 41 stale copied sheets, and sheets copied from months that have no file of their own. Details are in `docs/DATA.md`.
+  - WAPDA data is historical, not live. It serves as ground truth for training and evaluating forecasts, so bad values directly distort scores.
+- Decision:
+  - **Gomal Zam is dropped.** It isn't on the river graph, and it is the noisiest station (most typos, a repeated placeholder level, some flows converted from m³/s). WAPDA ingestion covers 6 stations: Tarbela, Ghazi Barotha, Mangla, Warsak, Chashma and Jinnah. T-4 EXT is read only to check Tarbela's total outflow.
+  - **Typos are flagged, never corrected.** A value far from its neighbouring days is kept as written and marked `suspect`. Training and evaluation ignore suspect values.
+  - **Stale copies are skipped.** A sheet identical to the sheet for the date it claims is not stored.
+  - **Copied sheets from months with no file use the sheet's own date.** If a sheet's `DATA FOR:` date is about a month or more earlier and no real sheet exists for that date, its data is stored under that date and marked `date_from_sheet`.
+  - **Date typos use the expected date.** If the claimed date has its own sheet with different data, the date cell is treated as the typo (all 4 cases are one day off).
+- Consequences:
+  - The prototype loses Gomal Zam. It can be added back later from the same files if needed.
+  - Every stored value can be traced to its file and sheet, and every change in how a value was read is visible through its flag.
+  - The rules need a short manual review of the flagged rows before the first load.
+
+## ADR-018: Shared daily observation tables
+- Date: 2026-10-18
+- Status: Accepted
+- Context: Several sources (WAPDA now; FFC, IRSA, GloFAS and others later) report daily values for the same river points. One table per source would make every comparison and every API query join several tables.
+- Decision:
+  - `nodes` holds the river points (slug id, name, river, approximate location). It is seeded with the 6 WAPDA stations.
+  - `daily_observations` holds one row per node, per day, per source, with a `source` column. The unique key is `(node_id, observed_on, source)`, so different sources for the same day sit side by side.
+  - Its value columns follow the WAPDA structure for now (level, inflow, turbine, other and total outflow, irrigation indent) and are extended by migration when another source needs more.
+  - Values keep their native units. Each row carries `flags`, `source_file`, `sheet` and `ingested_at`.
+  - A source's loader replaces only its own rows (delete by `source`, then insert), so re-running a load is safe and never touches other sources.
+- Consequences: One query covers all sources. The WAPDA-shaped columns will need changes once a source with different variables (e.g. discharge in m³/s, rainfall) arrives.
+
 ---
 
 ## Proposed (not yet decided)
