@@ -34,8 +34,21 @@ The first priority is a thin end-to-end slice: one river, one data source of eac
 - [ ] Frontend: time slider, `/alerts` page, then the node, reach, sources, about, evaluation, terms and privacy pages
 - [x] Write the WAPDA parser and load Jul 2022 – Oct 2026 into PostgreSQL
 - [ ] WAPDA back-fill from the "last year" columns (467 missing days, see `docs/DATA.md`)
+- [ ] Discuss the data-source review findings below as a team, and record what we accept in `docs/DECISIONS.md`
+
+## Data-source review: open findings (2026-11-10)
+An independent review checked the planned sources (table in `docs/DATA.md`). Nothing is a wrong choice, but there are gaps: Indus summer flow is driven mostly by **snow and glacier melt** and by **dam operations**, and our list mostly covers rainfall and satellite images. **These are suggestions, not decisions.** Some claims are still unverified (Sentinel-1 coverage over Pakistan, whether FFD/IRSA archives exist).
+- **Add weather forecasts and melt data.** IMERG only shows rain that has already fallen. Candidates: ECMWF open forecasts (rain and temperature for the next days, free since 2025), ERA5-Land temperature history, and VIIRS snow cover.
+- **Use GloFAS carefully.** It is weak below the dams, where flow depends on release decisions. Use it mainly for the rivers flowing *into* the dams (above Tarbela, Kabul, Jhelum and Chenab inflows). Use the same GloFAS version for training and live runs, and never feed values a live system wouldn't have yet.
+- **Training history is our biggest weakness.** WAPDA starts in 2022, and 2022 and 2025 are held out, leaving about 3 monsoons to train on. More measured history from FFD or IRSA reports is the best fix, so the data request is urgent.
+- **Sentinel-1 is for flood mapping, not forecasting.** Its 6-day repeat only started in mid-2026; the 2022 flood had about 14 passes in 6 weeks.
+- **Copernicus GFM** publishes free flood maps from every Sentinel-1 image since 2015. Use it as a benchmark and for its masks.
+- **Build the ~20-node river graph by hand,** including link canals, which HydroRIVERS doesn't have. Use HydroRIVERS only to check it.
+- **JRC's normal-water map ends in 2021.** Use its seasonal layer, or a dry-season Sentinel-1 image instead.
+- **For the later water-detection model,** consider Kuro Siwo, which is much larger than Sen1Floods11.
 
 ## Log
+- **2026-11-10** (Hasaan): Ran an independent review of the planned data sources. Added a "what each source is for" table to `docs/DATA.md` and the open findings above.
 - **2026-10-18** (Hasaan): Loaded the WAPDA history into `daily_observations` on the dev DB: 7,668 rows (1,278 days × 6 stations, Jul 2022 – Oct 2026), with flags. Command: `python -m scripts.ingest_wapda` from `apps/backend`.
 - **2026-10-18** (Rohail): Scaffolded the frontend in `apps/frontend`: the map dashboard with the river schematic, active alerts and reach panel (threshold staff and forecast chart). It uses sample data until the API exists. Frontend stack is ADR-010 to ADR-016, and the design system is in `apps/frontend/DESIGN.md`.
 - **2026-10-18** (Hasaan): Surveyed all 54 extracted WAPDA workbooks (1,319 day sheets). Updated the quality issues and parsing rules in `docs/DATA.md`, and recorded the scope and cleaning rules as ADR-017.

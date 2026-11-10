@@ -20,6 +20,19 @@ Raw data is **not in git**. Get it from the team drive and place it under `data/
 | JRC Global Surface Water | Where water is normally present | Global, 30 m | 1984–2021 (v1.4) + 2022–24 | JRC download / GEE | Planned (channel mask) |
 | Sen1Floods11 | Labelled Sentinel-1 flood chips for training U-Net | 11 global events | Static, ~14 GB | `gs://sen1floods11` | Planned |
 
+### What each planned source is for
+| Source | What it is | How often we ingest | What we use it for |
+|---|---|---|---|
+| **Sentinel-1** | Radar satellite, sees through cloud | Each new image over our area (about every 6 days since mid-2026; far fewer images in 2022) | Mapping where water is spreading. Not a forecast input |
+| **GPM IMERG** | Rainfall from satellites | Every few hours | Spotting heavy rain upstream before it reaches the rivers |
+| **GloFAS** | Computer-modelled river flow (not a satellite) | Daily | River flow for model input, and history for training (available from 1979; we need 2015 onward) |
+| **Sentinel-2** | Optical satellite (normal photos) | Every new clear image (about every 5 days), optional | Checking the Sentinel-1 water maps on clear days |
+| **JRC Global Surface Water** | Map of where water normally is | Once | Telling flood water apart from the usual river |
+| **HydroRIVERS** | River network map | Once | Checking our river graph (which point flows into which) |
+| **Sen1Floods11** | Labelled flood images | Once, when needed | Training the water-detection model (later) |
+
+All of these are free; most need a free account. They feed the forecast, and WAPDA's dam data is what forecasts are checked against. The first version needs only Sentinel-1, IMERG and GloFAS. Open suggestions from the 2026-11-10 review are in `docs/PROGRESS.md`.
+
 ---
 
 ## WAPDA: Daily Hydel Operational Synopsis
