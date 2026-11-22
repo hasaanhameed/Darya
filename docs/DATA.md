@@ -12,7 +12,7 @@ Raw data is **not in git**. Get it from the team drive and place it under `data/
 | FFC Daily Flood Situation Report | Inflow, outflow and flood class per structure | Main dams and barrages | Daily PDFs (seen for the 2022–23 monsoons) | `ffc.gov.pk/wp-content/uploads/YYYY/MM/DFSR-DD-MM-YYYY.pdf` | To investigate |
 | IRSA daily flows | Rim-station inflows and barrage flows | Tarbela, Mangla, Nowshera, Marala, Indus barrages | Daily | pakirsa.gov.pk (unreachable during research); republished in news | To investigate |
 | Historical gauge records | Long gauge history (2015 onward) | All prototype nodes | Daily | Formal request to FFD/WAPDA through our advisor | To request (first M1 task) |
-| GloFAS reanalysis | Modelled daily river discharge (m³/s) | Global, 0.05° grid | 1979 – near real time | Copernicus **EWDS**, `cdsapi` | Planned (history fallback) |
+| GloFAS reanalysis | Modelled daily river discharge (m³/s) | Global, 0.05° grid | 1979 – near real time | Copernicus **EWDS**, `cdsapi` | **Ingesting** (v4.0, 2015 onward; ADR-021) |
 | Sentinel-1 SAR | Radar backscatter that sees through cloud, for water detection | Global, 10 m | 6-day repeat (S1C+S1D); 12-day during 2022–25 | CDSE / Planetary Computer / GEE / ASF | Planned |
 | Sentinel-2 | Optical imagery for checking water maps on clear days | Global, 10–20 m | ~5 days | CDSE / Planetary Computer / GEE | Planned |
 | GPM IMERG | Satellite rainfall | Global, 0.1°, half-hourly / daily | 2000 onward | NASA GES DISC, `earthaccess` | Planned |
@@ -190,7 +190,7 @@ Gomal Zam is in the files but is dropped (ADR-017).
 
 These nodes need FFD, FFC, IRSA or the historical-records request.
 
-**History gap:** WAPDA history starts in Jul 2022, but the proposal wants data from 2015. GloFAS reanalysis is the fallback for training.
+**History gap:** WAPDA history starts in Jul 2022, but the proposal wants data from 2015. GloFAS reanalysis (loaded from 2015, see "GloFAS" below) fills it with modelled flow, which misses the size of flood peaks.
 
 ---
 
@@ -228,10 +228,57 @@ These figures were taken from the FFD page in Oct 2026. Re-check them against th
 - **Reading time:** barrage values are usually gauge readings taken at 06:00, not daily means. Record which kind each value is.
 
 ### GloFAS (Copernicus Emergency Management Service)
-- **Datasets:** `cems-glofas-historical` (daily, 0.05°, 1979 to near real time) and `cems-glofas-forecast` (ensemble out to 30 days).
-- **Access:** through the **EWDS** with `cdsapi` (url `https://ewds.climate.copernicus.eu/api`). It needs a separate account, and the dataset licence must be accepted per dataset.
-- **Versions:** v5.0 of the reanalysis was released in 2026, while the forecast product is still on v4.0. **Pin one version and never mix them.**
-- **Node matching:** snap each node to the right grid cell using the upstream-area file.
+**What it is:** computer-modelled river discharge (not measured). It is the LISFLOOD model driven by ERA5 weather.
+- **Datasets:** `cems-glofas-historical` (the reanalysis, which we use) and `cems-glofas-forecast` (ensemble out to 30 days, not used yet).
+- **Grid:** daily, 0.05° (about 5 km), 1979 to about 4 days ago.
+- **Access:** EWDS with `cdsapi` (url `https://ewds.climate.copernicus.eu/api`). It needs a free account, `EWDS_API_KEY` in `apps/backend/.env`, and the CEMS-FLOODS licence accepted once on the dataset page.
+
+**What we ingest (ADR-021)**
+- **Version:** v4.0.
+  - **`consolidated`:** final ERA5, up to 2026-06-30.
+  - **`intermediate`:** ERA5T, updated daily, about 4 days behind real time.
+  - **Why not v5.0 yet:** its reanalysis has no daily (intermediate) updates, there is no v5 upstream-area file, and live forecasts are still v4. Versions are never mixed. Moving to v5 means one full reload.
+- **The response is a file, not JSON.** One NetCDF file per request:
+  - variable **`avg_dis`** ("time-mean discharge", in **m³/s**). Older docs call it `dis24`;
+  - coordinates `valid_time`, `latitude`, `longitude` (cell centres at .x25/.x75);
+  - area N37 W66 S23 E76, a 280 × 200 grid. One year is about 26 MB.
+- **Request size:** one request per calendar year (365 fields, under the 500-field limit), or one per month for part of a year. A request is queued and takes one to a few minutes.
+- **Files:** saved as `data/glofas/raw/version_4_0/<product>_<first-day>_<last-day>.nc` and reused on later runs.
+- **Day:** a requested day is the day the 24-hour mean covers. EWDS stamps it 00 UTC the **next** day: asking for 2–31 Aug returns stamps 3 Aug – 1 Sep. So `observed_on` = stamp − 1 day, a UTC day. *(Checked on a real file.)*
+
+**Matching nodes to grid cells**
+- `scripts/match_glofas_cells.py` uses the v4.0 upstream-area file (`data/glofas/raw/uparea_glofas_v4_0.nc`, from the ECMWF Confluence "Auxiliary Data" page).
+- **Search rule:** look within ±3 cells of the node. Cells draining at least half the largest area nearby count as the main river; the **closest** of those wins. Taking simply the largest area drifts to the downstream edge of the window, because upstream area grows downstream.
+- The result is committed as `apps/backend/app/ingest/glofas/node_grid_cells.csv`. All cells are within 7.2 km of the nodes.
+- **Two cells were chosen by hand** (`MANUAL_CELLS` in the script):
+  - **Panjnad:** the node sits where the Chenab (158k km²) meets the Sutlej (121k km²). The headworks is below the junction, so it uses the 278k km² cell.
+  - **Rasul:** GloFAS's 5 km river map joins the Chenab into the Jhelum at Rasul (73k km²), while in reality they meet at Trimmu. Rasul uses the Jhelum cell just above that false junction (38k km²). **Model values between Rasul and Trimmu mix the two rivers.**
+- **Known difference:** Tarbela's GloFAS upstream area is 199k km², against about 170k km² usually quoted.
+
+**Table `glofas_discharge`** (ADR-019): one row per node, day and version, with `discharge_m3s`, `product_type`, `system_version`, `flags`, `source_file` and `ingested_at`. Where consolidated and intermediate both cover a day, consolidated is kept.
+
+| Flag | Meaning | Exclude? |
+|---|---|---|
+| `missing_value` | No value at the node's cell for that day | **exclude** |
+| `negative_value` | Discharge below zero (not physical). Value kept as written | **exclude** |
+
+**Compared with WAPDA inflow, Jul–Dec 2022** (GloFAS converted to cfs: 1 m³/s = 35.31 cfs; WAPDA rows flagged for exclusion left out):
+
+| Station | Correlation | Mean GloFAS ÷ WAPDA | 2022 peak: WAPDA | 2022 peak: GloFAS |
+|---|---|---|---|---|
+| Tarbela | 0.88 | 0.98 | 323,600 (29 Jul) | 430,749 (2 Jul) |
+| Chashma | 0.77 | 0.96 | 526,026 (29 Aug) | 449,577 (3 Jul) |
+| Jinnah | 0.74 | 1.18 | 420,147 (28 Aug) | 449,531 (2 Jul) |
+| Mangla | 0.70 | 0.85 | 73,239 (28 Jul) | 34,315 (3 Aug) |
+| Warsak | 0.72 | 0.60 | 133,435 (27 Aug) | 34,879 (29 Aug) |
+
+- **Seasonal shape and volume are roughly right**, especially at Tarbela and Chashma.
+- **The 2022 flood peaks are missed.** GloFAS peaks in early July (snowmelt) instead of late August (monsoon rain), and it is far too low at Mangla and Warsak.
+- Shifting GloFAS by −2 to +8 days barely changes the correlations, because the seasonal cycle dominates them.
+- Ghazi Barotha isn't comparable: WAPDA's "inflow" there is the power-channel flow.
+- **Use:** long history, seasonal context and a model input. **Not** a stand-in for measured flood peaks.
+
+**Limits:** GloFAS doesn't know dam operations. Expect it to be weak below Tarbela, Mangla and the barrages, and better for the rivers flowing into the dams (see the review findings in `docs/PROGRESS.md`).
 
 ### Sentinel-1 / Sentinel-2
 - **Sentinel-1 constellation:**

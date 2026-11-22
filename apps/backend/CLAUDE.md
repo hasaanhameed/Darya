@@ -21,6 +21,8 @@ pip install -r requirements.txt
 | Tests | `pytest` (fast only: `pytest -m "not integration"`) |
 | Migrations | `alembic revision --autogenerate -m "<msg>"`, then `alembic upgrade head` |
 | WAPDA load | `python -m scripts.ingest_wapda` (`--dry-run` writes only `data/wapda/processed/review.csv`) |
+| GloFAS load | `python -m scripts.ingest_glofas --start 2015-01-01 [--end YYYY-MM-DD] [--dry-run]` (needs `EWDS_API_KEY`; files are cached in `data/glofas/raw/`) |
+| GloFAS cells | `python -m scripts.match_glofas_cells` (re-creates `app/ingest/glofas/node_grid_cells.csv`; review it before committing) |
 
 Configuration lives in `app/core/config.py`, which reads environment variables through `pydantic-settings`.
 - Put local values in `.env`, which is git-ignored. Keep `.env.example` committed and up to date.
@@ -32,15 +34,17 @@ The code is organised by domain. Folders marked *(planned)* don't exist yet.
 app/
   main.py          FastAPI app factory, router registration (planned)
   core/            settings, async DB engine/session
-  models/          SQLAlchemy tables: Node, DailyObservation
+  models/          SQLAlchemy tables: Node, DailyObservation, GlofasDischarge
   routes/          API routers + Pydantic request/response schemas (empty)
   ingest/wapda/    station_aliases → sheet_finder → sheet_parser → cleaning → load_to_db
-  ingest/<source>/ one package per further source (ffd, glofas, imerg, ...) (planned)
+  ingest/glofas/   request_builder → file_downloader → grid_reader → cleaning → load_to_db
+                   (grid_cell_matcher + node_grid_cells.csv: each node's grid cell)
+  ingest/<source>/ one package per further source (imerg, sentinel1, ...) (planned)
   twin/            reach state updates, history (planned)
   forecast/        baselines, LSTM/GNN wrappers, forecast runs (planned)
   risk/            category mapping, reasons, alert rules (planned)
 alembic/           migrations
-scripts/           CLI jobs, e.g. ingest_wapda.py
+scripts/           CLI jobs, e.g. ingest_wapda.py, ingest_glofas.py
 tests/
 ```
 The API never imports `ingest`. Only scripts (and a scheduler, later) call it.

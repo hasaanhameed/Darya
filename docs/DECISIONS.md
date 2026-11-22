@@ -218,6 +218,23 @@ This is a log of significant technical decisions, kept as lightweight ADRs.
   - The pipelines look alike after the first step, whatever the source format.
   - The dependency list grows. Versions are pinned in `requirements.txt`.
 
+## ADR-021: GloFAS v4.0 reanalysis as modelled river flow
+- Date: 2026-11-22
+- Status: Accepted (resolves P-7)
+- Context:
+  - Measured history (WAPDA) starts in Jul 2022, and models need data from 2015.
+  - GloFAS v5.0 was released in Jul 2026, but only as consolidated data (no daily updates), with no published upstream-area file. Live GloFAS forecasts are still v4.
+- Decision:
+  - **Version and products:** v4.0 reanalysis from EWDS, from 2015-01-01:
+    - `consolidated` up to 2026-06-30;
+    - `intermediate` after that, about 4 days behind.
+  - **Never mix versions.** The version is stored on every row and is part of the unique key.
+  - **One cell per node:** the nearest main-river cell, chosen by the rule in `docs/DATA.md`. Two cells are chosen by hand (Panjnad, Rasul). The matches are committed as `node_grid_cells.csv`.
+  - **The day** is the UTC day the 24-hour mean covers (the value's 00 UTC stamp minus one day).
+- Consequences:
+  - We get a consistent daily flow series for all 21 nodes from 2015, for training and live use.
+  - **Moving to v5** means re-matching the cells and doing a full reload. Plan it once v5 forecasts and v5 intermediate data are both available (expected Dec 2026 or later).
+
 ---
 
 ## Proposed (not yet decided)
@@ -229,6 +246,6 @@ This is a log of significant technical decisions, kept as lightweight ADRs.
 | P-4 | ~~**MapLibre GL via react-map-gl**, OpenFreeMap basemap~~ | Accepted as ADR-010 |
 | P-5 | **Scheduler** | APScheduler in its own worker container, or cron calling CLI scripts. Avoid Celery unless needed |
 | P-6 | **Docker Compose** (db, backend, frontend) | Gives one-command start and a repeatable demo |
-| P-7 | **GloFAS reanalysis** as the historical fallback | If gauge history from 2015 isn't received in time. Pin one GloFAS version |
+| P-7 | ~~**GloFAS reanalysis** as the historical fallback~~ | Accepted as ADR-021 |
 | P-8 | **Sentinel-1 access platform** | CDSE vs Planetary Computer RTC vs GEE (see `docs/DATA.md`) |
 | P-9 | ~~**Frontend tooling**~~ | Accepted as ADR-011 (styling) and ADR-012 (data fetching) |
