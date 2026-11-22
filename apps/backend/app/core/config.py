@@ -11,5 +11,10 @@ class Settings(BaseSettings):
 
     database_url: str
 
+    # Data-source accounts. Only the ingestion scripts that need them check they are set.
+    ewds_api_key: str | None = None  # Copernicus EWDS (GloFAS)
+    earthdata_username: str | None = None  # NASA Earthdata (IMERG)
+    earthdata_password: str | None = None
+
 
 settings = Settings()
