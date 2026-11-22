@@ -34,6 +34,10 @@ The first priority is a thin end-to-end slice: one river, one data source of eac
 - [ ] Frontend: time slider, `/alerts` page, then the node, reach, sources, about, evaluation, terms and privacy pages
 - [x] Write the WAPDA parser and load Jul 2022 – Oct 2026 into PostgreSQL
 - [ ] WAPDA back-fill from the "last year" columns (467 missing days, see `docs/DATA.md`)
+- [x] Satellite and model ingestion phase 0: all nodes seeded, geo libraries, ADR-019/020
+- [ ] Phase 1: GloFAS v4.0 reanalysis (2015 onward) into `glofas_discharge`
+- [ ] Phase 2: IMERG Late catchment rainfall into `imerg_rainfall`
+- [ ] Phase 3: Sentinel-1 water extent per reach (needs reach and PostGIS decisions first)
 - [ ] Discuss the data-source review findings below as a team, and record what we accept in `docs/DECISIONS.md`
 
 ## Data-source review: open findings (2026-11-10)
@@ -48,6 +52,7 @@ An independent review checked the planned sources (table in `docs/DATA.md`). Not
 - **For the later water-detection model,** consider Kuro Siwo, which is much larger than Sen1Floods11.
 
 ## Log
+- **2026-11-22** (Hasaan): Satellite and model ingestion phase 0. Seeded all 21 prototype nodes, added the geo and source-client libraries (all install on Python 3.14), and optional source credentials in settings. ADR-019 (one table per source) and ADR-020 (xarray and geo libraries). Next: GloFAS (phase 1).
 - **2026-11-10** (Hasaan): Ran an independent review of the planned data sources. Added a "what each source is for" table to `docs/DATA.md` and the open findings above.
 - **2026-10-18** (Hasaan): Loaded the WAPDA history into `daily_observations` on the dev DB: 7,668 rows (1,278 days × 6 stations, Jul 2022 – Oct 2026), with flags. Command: `python -m scripts.ingest_wapda` from `apps/backend`.
 - **2026-10-18** (Rohail): Scaffolded the frontend in `apps/frontend`: the map dashboard with the river schematic, active alerts and reach panel (threshold staff and forecast chart). It uses sample data until the API exists. Frontend stack is ADR-010 to ADR-016, and the design system is in `apps/frontend/DESIGN.md`.

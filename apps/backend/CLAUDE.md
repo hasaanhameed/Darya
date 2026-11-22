@@ -4,7 +4,7 @@ This is the Python service. It covers data ingestion, the digital twin state, fo
 Read the root `CLAUDE.md` first for the domain rules (units, UTC, provenance).
 
 ## Environment
-- Python 3.12 or newer. Python 3.12/3.13 is safest once the ML and geo packages are added.
+- Python 3.12 or newer. The dev venv is 3.14, and all geo packages install from wheels (ADR-020). Check the ML packages before adding them.
 - Dependencies live in `requirements.txt`. Pin exact versions. FastAPI is still 0.x, so a minor bump can break things.
 
 ```bash
@@ -58,6 +58,9 @@ The API never imports `ingest`. Only scripts (and a scheduler, later) call it.
   - CPU-heavy work, such as raster processing, model training or GNN inference, runs in separate scripts or worker processes, not inside request handlers.
   - Async tests use `@pytest.mark.anyio`.
 - **Data handling uses pandas.** Parsing, cleaning and reshaping work on DataFrames, the same way for every source, so the pipelines look alike. Prefer column operations and boolean masks over loops through rows.
+  - Gridded and raster data (NetCDF, GeoTIFF) is read with xarray or rioxarray and turned into a DataFrame at the module boundary, e.g. one row per node per day (ADR-020). Everything after that is pandas.
+- **One table per satellite or model source** (ADR-019), e.g. `glofas_discharge`, `imerg_rainfall`. `daily_observations` is the WAPDA gauge table.
+- **Credentials** for data sources (`EWDS_API_KEY`, `EARTHDATA_USERNAME`, `EARTHDATA_PASSWORD`) are optional settings in `app/core/config.py`. They are read from `.env` and never committed.
 - **Collectors:**
   - Each collector is idempotent: fetch raw data, store it untouched, parse, validate, then upsert. Re-running it for the same date must not create duplicates.
   - Validation flags bad values and does not silently drop them. Record why a row was rejected.

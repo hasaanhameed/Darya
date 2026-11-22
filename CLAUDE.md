@@ -8,10 +8,10 @@ It collects satellite, rainfall and river data and keeps a versioned state per r
   - FastAPI backend (Python)
   - Next.js frontend, with MapLibre, Tailwind 4, TanStack Query and Recharts (ADR-010 to ADR-016)
   - PostgreSQL
+  - xarray, rasterio, GeoPandas for gridded and geo data (ADR-020)
 - **Planned, not yet decided:**
   - PostGIS
   - PyTorch + PyG
-  - Rasterio/GDAL/GeoPandas
   - Docker Compose
   - a job scheduler
 

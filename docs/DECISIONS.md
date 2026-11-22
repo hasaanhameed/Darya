@@ -176,7 +176,7 @@ This is a log of significant technical decisions, kept as lightweight ADRs.
 
 ## ADR-018: Shared daily observation tables
 - Date: 2026-10-18
-- Status: Accepted
+- Status: Accepted. Narrowed by ADR-019: `daily_observations` now holds gauge data (WAPDA), and satellite and model sources get their own tables.
 - Context: Several sources (WAPDA now; FFC, IRSA, GloFAS and others later) report daily values for the same river points. One table per source would make every comparison and every API query join several tables.
 - Decision:
   - `nodes` holds the river points (slug id, name, river, approximate location). It is seeded with the 6 WAPDA stations.
@@ -186,6 +186,38 @@ This is a log of significant technical decisions, kept as lightweight ADRs.
   - A source's loader replaces only its own rows (delete by `source`, then insert), so re-running a load is safe and never touches other sources.
 - Consequences: One query covers all sources. The WAPDA-shaped columns will need changes once a source with different variables (e.g. discharge in m³/s, rainfall) arrives.
 
+## ADR-019: One table per satellite and model source
+- Date: 2026-11-22
+- Status: Accepted
+- Context:
+  - GloFAS (modelled discharge in m³/s), IMERG (catchment rainfall in mm) and Sentinel-1 (water extent per image) have different variables, units and provenance (product version, run, scene).
+  - Fitting them into the WAPDA-shaped `daily_observations` would mean many mostly empty columns.
+- Decision:
+  - Each new source gets its own table, shaped for that source: `glofas_discharge`, `imerg_rainfall`, `sentinel1_scenes` and `sentinel1_reach_water`.
+  - All tables still key on `node_id` (or reach) and `observed_on`, keep native units in column names, and carry `flags`, `source_file` and `ingested_at`.
+  - `daily_observations` stays as the WAPDA table.
+  - All 21 prototype nodes are seeded in `nodes`, so gridded sources can cover the whole network.
+- Consequences:
+  - Each table is easy to read and to load on its own.
+  - Model inputs and API queries join several tables. We revisit this choice (for example a shared long-format table or a view) when training starts.
+
+## ADR-020: xarray and geo libraries for gridded data
+- Date: 2026-11-22
+- Status: Accepted (resolves P-3)
+- Context: GloFAS and IMERG come as NetCDF grids, Sentinel-1 as Cloud-Optimised GeoTIFFs, and catchments and reaches are polygons. pandas alone can't read these.
+- Decision:
+  - **Reading:**
+    - xarray reads grids, through the netCDF4 engine;
+    - rasterio and rioxarray read rasters;
+    - geopandas reads polygons;
+    - regionmask weights grid cells inside catchments.
+  - **Clients:** `cdsapi` (GloFAS), `earthaccess` and `harmony-py` (IMERG), and `pystac-client`, `planetary-computer` and `odc-stac` (Sentinel-1).
+  - **Gridded data becomes a pandas DataFrame at the module boundary** (e.g. one row per node per day). Cleaning and loading stay in pandas, as for WAPDA.
+  - All of these install from wheels on the dev venv (Python 3.14, GDAL 3.12 bundled with rasterio), so no system GDAL is needed.
+- Consequences:
+  - The pipelines look alike after the first step, whatever the source format.
+  - The dependency list grows. Versions are pinned in `requirements.txt`.
+
 ---
 
 ## Proposed (not yet decided)
@@ -193,7 +225,7 @@ This is a log of significant technical decisions, kept as lightweight ADRs.
 |---|---|---|
 | P-1 | **PostGIS** extension | Spatial queries per reach and vector tiles via `ST_AsMVT`. Probably needed once water extents arrive |
 | P-2 | **PyTorch + PyTorch Geometric** | For the LSTM and GNN. Check Python version compatibility before adding |
-| P-3 | **Rasterio / GDAL / GeoPandas** | Sentinel-1 processing and handling the river network |
+| P-3 | ~~**Rasterio / GDAL / GeoPandas**~~ | Accepted as ADR-020 |
 | P-4 | ~~**MapLibre GL via react-map-gl**, OpenFreeMap basemap~~ | Accepted as ADR-010 |
 | P-5 | **Scheduler** | APScheduler in its own worker container, or cron calling CLI scripts. Avoid Celery unless needed |
 | P-6 | **Docker Compose** (db, backend, frontend) | Gives one-command start and a repeatable demo |

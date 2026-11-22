@@ -254,7 +254,7 @@ These figures were taken from the FFD page in Oct 2026. Re-check them against th
 - **Sen1Floods11:** `gsutil -m rsync -r gs://sen1floods11 <dir>`. 512×512 chips of S1 VV/VH, 446 hand-labelled. Cite Bonafilia et al. (2020).
 
 ## Prototype nodes (approximate)
-These coordinates are approximate to about ±0.05°. Confirm them against HydroRIVERS or a map before using them.
+These coordinates are approximate to about ±0.05°. Confirm them against HydroRIVERS or a map before using them. All 21 nodes are seeded in the `nodes` table, using these ids in lowercase (`ghazi_barotha` for Ghazi Barotha, `jinnah` for Jinnah).
 
 | Node | River | Lat | Lon | WAPDA? |
 |---|---|---|---|---|
