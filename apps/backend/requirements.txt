@@ -1,7 +1,6 @@
-# Darya backend - Python 3.12+
+# Darya backend - Python 3.12+ (dev venv is 3.14; every package below installs from wheels)
 # Install: pip install -r requirements.txt
-# Geo (PostGIS/GeoAlchemy2, rasterio, geopandas) and ML (torch, torch_geometric)
-# packages will be added once those decisions are accepted (docs/DECISIONS.md).
+# ML packages (torch, torch_geometric) will be added once that decision is accepted (docs/DECISIONS.md).
 
 # --- API ---
 fastapi==0.143.1
@@ -19,6 +18,22 @@ httpx==0.28.1
 pandas==3.0.6
 xlrd==2.0.2              # legacy .xls (WAPDA)
 openpyxl==3.1.5          # .xlsx (WAPDA 2022 files)
+
+# --- Gridded and geo data (ADR-020) ---
+xarray==2026.9.0         # gridded data, converted to pandas at the module boundary
+netCDF4==1.7.5.1.post1   # NetCDF reader for xarray (GloFAS, IMERG)
+geopandas==1.2.0         # catchment and reach polygons
+regionmask==0.13.0       # grid-cell weights inside catchments (IMERG averages)
+rasterio==1.5.2          # GeoTIFF / COG reading and writing (bundles GDAL)
+rioxarray==0.24.0        # rasterio + xarray (clip a raster window)
+
+# --- Source clients ---
+cdsapi==0.7.7            # GloFAS via Copernicus EWDS
+earthaccess==0.19.0      # NASA Earthdata login and search (IMERG)
+harmony-py==1.8.0        # NASA Harmony subsetter (IMERG, our bbox only)
+pystac-client==0.9.1     # STAC search (Sentinel-1)
+planetary-computer==1.0.0  # signs Planetary Computer asset URLs
+odc-stac==0.5.3          # loads STAC items into xarray
 
 # --- Dev ---
 pytest==9.1.1
