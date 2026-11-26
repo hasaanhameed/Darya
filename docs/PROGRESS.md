@@ -38,6 +38,8 @@ The first priority is a thin end-to-end slice: one river, one data source of eac
 - [ ] Phase 1: GloFAS v4.0 reanalysis (2015 onward) into `glofas_discharge`
 - [ ] Phase 2: IMERG Late catchment rainfall into `imerg_rainfall`
 - [ ] Phase 3: Sentinel-1 water extent per reach (needs reach and PostGIS decisions first)
+- [ ] PMD rainfall: load 1981–2015 into `rain_stations` and `pmd_rainfall` (branch `feat/pmd-rainfall-ingestion`)
+- [ ] **Before modelling with PMD rainfall:** verify station coordinates and basin tags in `app/ingest/pmd/rain_stations.csv`, and ask PMD about the rainfall-day window and trace codes (checklist in `docs/DATA.md`, PMD section)
 - [ ] Discuss the data-source review findings below as a team, and record what we accept in `docs/DECISIONS.md`
 
 ## Data-source review: open findings (2026-11-10)

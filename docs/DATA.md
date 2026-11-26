@@ -200,6 +200,14 @@ These nodes need FFD, FFC, IRSA or the historical-records request.
 ### What it is
 Daily rainfall measured by rain gauges at Pakistan Meteorological Department (PMD) weather stations. It is the only measured rainfall we have from before 2000 (IMERG starts in 2000), so it gives models a long history of how rain turns into river flow. It is **historical data, loaded once**, like WAPDA.
 
+> **Check before using PMD rainfall for modelling.** These parts are unverified:
+> 1. **Station coordinates** in `apps/backend/app/ingest/pmd/rain_stations.csv` are approximate (about ±0.05°), from general knowledge of each town, not from PMD. Check every station against an official PMD station list or a map. A wrong location puts a station in the wrong catchment.
+> 2. **Basin tags** (`indus` / `outside`) are a first pass by hand. The doubtful ones are Sibi, Ziarat, Quetta, Kalat and Khuzdar (Balochistan, marked `outside`) and Badin, Thatta and Mirpur Khas (below Kotri, marked `outside`). Replace the tags with the catchment link (ADR-022) once it is built.
+> 3. **Station identities:** `LAHORE, UPPER MALL` is assumed to be the same gauge as `LAHORE UPPER MALL`. The suffixes in `CHAKWAL (MUR)` and `QUETTA (SM)` are unknown.
+> 4. **The rainfall day** (which 24 hours a date covers) and **trace codes** (`-1`, `0.01`) need confirming with PMD.
+>
+> After fixing the CSV, re-run `python -m scripts.ingest_pmd` to reload the stations and rainfall.
+
 ### File layout
 ```
 data/pmd/
