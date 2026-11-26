@@ -188,7 +188,7 @@ This is a log of significant technical decisions, kept as lightweight ADRs.
 
 ## ADR-019: One table per satellite and model source
 - Date: 2026-11-22
-- Status: Accepted
+- Status: Accepted. Followed for PMD station rainfall too (ADR-023: `rain_stations` and `pmd_rainfall`).
 - Context:
   - GloFAS (modelled discharge in m³/s), IMERG (catchment rainfall in mm) and Sentinel-1 (water extent per image) have different variables, units and provenance (product version, run, scene).
   - Fitting them into the WAPDA-shaped `daily_observations` would mean many mostly empty columns.
@@ -251,6 +251,43 @@ This is a log of significant technical decisions, kept as lightweight ADRs.
   - Outlines are on a 5 km grid. That is finer than IMERG's 10 km and changes catchment averages by about 1% at our catchment sizes (24,000–830,000 km²).
   - Flat irrigated plains drain on the map to whichever river they reach, and canals aren't represented. Rain there adds little to river flow, so the model has to learn that.
   - Record version labels change within V07 (V07B, V07C). V08 means re-downloading and reloading everything.
+
+## ADR-023: PMD station rainfall in its own tables, with a station catalog
+- Date: 2026-11-26
+- Status: Accepted
+- Context:
+  - PMD gave us daily rain-gauge totals for 121 station names, 1981–2015, in one workbook. It is the only measured rainfall from before IMERG (2000), so it gives models a long rain → flow history. It is loaded once, like WAPDA.
+  - Rain gauges are weather stations, not points on the river network. The file has no coordinates or basin.
+  - Two options: add the stations to `nodes` with a `rainfall_mm` column in `daily_observations`, or give them their own tables (as ADR-019 does for each new source).
+- Decision:
+  - **Two new tables:**
+    - `rain_stations` (slug id, name, PMD name as written, approximate lat/lon, province, basin);
+    - `pmd_rainfall` (one row per station per day: `rainfall_mm`, `rainfall_raw` as written, `flags`, `source_file`, `sheet_row`, `ingested_at`; unique on station and day).
+  - **All stations are loaded,** each tagged `basin` = `indus` or `outside`, so models can filter later instead of us deciding now.
+  - **Station coordinates come from a committed catalog,** `app/ingest/pmd/rain_stations.csv`, compiled from public sources and marked approximate *(to verify)*. The loader replaces `rain_stations` from it on every run.
+  - **Linking stations to river nodes is deferred.** It will use the node catchments from ADR-022, so `rain_stations` has no `node_id` yet.
+- Consequences:
+  - `nodes` stays a river graph, and `daily_observations` keeps its WAPDA shape.
+  - Fixing a coordinate means editing the CSV and re-running the load.
+  - Model inputs will need a station → catchment join once it is built.
+
+## ADR-024: PMD rainfall cleaning rules
+- Date: 2026-11-26
+- Status: Accepted
+- Context: The survey (`docs/DATA.md`, "PMD: daily station rainfall") found "no reading" markers, garbled cells, values on dates that don't exist, negatives, 153 duplicate station-months, a few extreme values (some real, some not) and two stations whose values look modelled.
+- Decision (flag, never correct, as in ADR-017):
+  - **Blank cells are missing, not zero,** and produce no row. Days that don't exist (30 Feb…) are not stored, but they are counted and listed in the review file.
+  - **Markers and garbled text** (`----`, `*`, `***` on a real day, `.0   1`) are stored with an empty value and flagged `missing_marker` or `not_numeric`.
+  - **Negative values** are kept as written and flagged `suspect_negative` (they may be a trace code).
+  - **A station-month with a non-zero value on a day that doesn't exist** has all its rows flagged `month_has_impossible_day`, because its days may be shifted.
+  - **Duplicate station-months:** identical copies become one row. For copies that differ, the first one (lowest sheet row) is kept and flagged `duplicate_conflict`.
+  - **Garhi Dopatta and Kotli** are loaded with `not_gauge_precision` on every row.
+  - **More than 300 mm in a day** is flagged `extreme_rainfall`, but **not** excluded, because some are real (Islamabad 591.9 mm on 24 Jul 2001).
+  - All flags except `extreme_rainfall` mean "exclude from training and scoring".
+- Consequences:
+  - Every stored value is exactly as written and can be traced to its Excel row.
+  - `extreme_rainfall` rows need a short manual check before training.
+  - If PMD confirms the trace codes (`-1`, `0.01`) or the shifted months, the rules change here and the data is reloaded.
 
 ---
 
