@@ -36,7 +36,8 @@ The code is organised by domain. Folders marked *(planned)* don't exist yet.
 app/
   main.py          FastAPI app factory, router registration (planned)
   core/            settings, async DB engine/session
-  models/          SQLAlchemy tables: Node, DailyObservation, GlofasDischarge, ImergRainfall
+  models/          SQLAlchemy tables: Node, DailyObservation, GlofasDischarge, ImergRainfall,
+                   RainStation, PmdRainfall (PMD gauges are stations, not nodes; ADR-023)
   routes/          API routers + Pydantic request/response schemas (empty)
   ingest/wapda/    station_aliases → sheet_finder → sheet_parser → cleaning → load_to_db
   ingest/glofas/   request_builder → file_downloader → grid_reader → cleaning → load_to_db
