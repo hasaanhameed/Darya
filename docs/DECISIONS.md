@@ -256,7 +256,7 @@ This is a log of significant technical decisions, kept as lightweight ADRs.
 - Date: 2026-11-26
 - Status: Accepted
 - Context:
-  - PMD gave us daily rain-gauge totals for 121 station names, 1981–2015, in one workbook. It is the only measured rainfall from before IMERG (2000), so it gives models a long rain → flow history. It is loaded once, like WAPDA.
+  - PMD gave us daily rain-gauge totals for 120 stations (122 names as written), 1981–2015, in one workbook. It is the only measured rainfall from before IMERG (2000), so it gives models a long rain → flow history. It is loaded once, like WAPDA.
   - Rain gauges are weather stations, not points on the river network. The file has no coordinates or basin.
   - Two options: add the stations to `nodes` with a `rainfall_mm` column in `daily_observations`, or give them their own tables (as ADR-019 does for each new source).
 - Decision:

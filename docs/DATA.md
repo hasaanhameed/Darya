@@ -8,7 +8,7 @@ Raw data is **not in git**. Get it from the team drive and place it under `data/
 | Source | Provides | Coverage | History / cadence | Access | Status |
 |---|---|---|---|---|---|
 | **WAPDA Hydel Synopsis** | Reservoir level, inflow and outflow at WAPDA dams and barrages | Tarbela, Ghazi Barotha, Mangla, Warsak, Chashma, Jinnah (Gomal Zam dropped, ADR-017) | Daily, Jul 2022 – Oct 2026 (with gaps) | Spreadsheets received from WAPDA | **Obtained** |
-| **PMD daily rainfall** | Daily rain-gauge totals (mm) at PMD weather stations | 121 station names across Pakistan (about 50 with records from the early 1980s, many only from 2012) | Daily, 1981 – 2015 (with gaps) | One workbook received from PMD | **Obtained** (one-time historical load) |
+| **PMD daily rainfall** | Daily rain-gauge totals (mm) at PMD weather stations | 120 stations across Pakistan (about 50 with records from the early 1980s, many only from 2012) | Daily, 1981 – 2015 (with gaps) | One workbook received from PMD | **Obtained** (one-time historical load) |
 | PMD-FFD | River discharge and flood category at key sites; flood thresholds | Main rivers, incl. the Chenab, Ravi, Sutlej and lower Indus barrages | Live map; PDF bulletins 2024–25 | ffd.pmd.gov.pk (no public API found) | To investigate |
 | FFC Daily Flood Situation Report | Inflow, outflow and flood class per structure | Main dams and barrages | Daily PDFs (seen for the 2022–23 monsoons) | `ffc.gov.pk/wp-content/uploads/YYYY/MM/DFSR-DD-MM-YYYY.pdf` | To investigate |
 | IRSA daily flows | Rim-station inflows and barrage flows | Tarbela, Mangla, Nowshera, Marala, Indus barrages | Daily | pakirsa.gov.pk (unreachable during research); republished in news | To investigate |
@@ -225,9 +225,13 @@ data/pmd/
 - **The rainfall day:** the file doesn't say which 24 hours a "day" covers. PMD normally reports rain over the 24 hours ending at 08:00 PKT (03:00 UTC) *(to verify with PMD)*. We store the date exactly as written, as a `date`.
 
 ### Stations
-- **121 names** in the file. Two are the same station written two ways: `GUJRANWALA` and `GUJRANWALA ` (trailing space), and `T.T.  SINGH` has a double space. Names are matched after trimming and collapsing spaces.
+- **122 names as written, 120 stations.** Names are matched after upper-casing, trimming and collapsing spaces, which fixes `GUJRANWALA ` (trailing space) and `T.T.  SINGH` (double space). `LAHORE, UPPER MALL` (Aug–Sep 2015) is treated as the same gauge as `LAHORE UPPER MALL` (up to Jul 2015), because their months don't overlap; that alias lives in `app/ingest/pmd/station_names.py`.
 - Some spellings differ from the usual ones: `JACCOBABAD` (Jacobabad), `GARRHI DOPATTA` (Garhi Dupatta), `PAJNGUR` (Panjgur), `GAWADAR` (Gwadar), `SHAHEED BENAZIRABAD` (Nawabshah).
-- The file has **no coordinates and no basin**. Approximate ones are kept in `apps/backend/app/ingest/pmd/rain_stations.csv` *(to verify)*, with a `basin` tag: `indus` (drains to the Indus system) or `outside` (Makran coast, Kharan and Thar deserts, closed basins in Balochistan).
+- The file has **no coordinates and no basin**. Our catalog `apps/backend/app/ingest/pmd/rain_stations.csv` adds a slug `id`, a readable name, approximate lat/lon (about ±0.05°, from general knowledge of each town; *to verify*), the province and a `basin` tag:
+  - `indus` (97 stations): inside the Indus basin, upstream of or at Kotri/Hyderabad, our last node.
+  - `outside` (23 stations): the Makran coast (Gwadar, Jiwani, Pasni, Ormara, Turbat, Panjgur), Karachi and Lasbela, the closed basins of western and central Balochistan (Dalbandin, Nokkundi, Quetta, Kalat, Khuzdar, Ziarat, Sibi), the Thar desert (Mithi, Chhor) and the delta below Kotri (Badin, Thatta, Mirpur Khas).
+  - This tag is a first pass. The real link to river nodes will come from the node catchments (ADR-022).
+- Station-name oddities that are **not** fixed, because we can't confirm them: `CHAKWAL (MUR)` and `QUETTA (SM)` (meaning of the suffixes unknown), and `ISLAMABAD A/P` (the old airport, which is in Rawalpindi).
 - Lahore has many city gauges (`LAHORE, GULBERG`, `LAHORE, IQBAL TOWN`…), most with only 2015 data.
 
 ### Coverage

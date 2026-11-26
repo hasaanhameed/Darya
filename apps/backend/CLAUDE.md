@@ -44,6 +44,8 @@ app/
                    (grid_cell_matcher + node_grid_cells.csv: each node's grid cell)
   ingest/imerg/    request_builder → file_downloader → catchment_averager → cleaning → load_to_db
                    (catchment_builder: each node's catchment and local area, as IMERG cell weights)
+  ingest/pmd/      station_names (+ rain_stations.csv: station catalog with approx. coordinates and basin)
+                   → sheet_parser → cleaning → load_to_db (in progress)
   ingest/<source>/ one package per further source (sentinel1, ...) (planned)
   twin/            reach state updates, history (planned)
   forecast/        baselines, LSTM/GNN wrappers, forecast runs (planned)

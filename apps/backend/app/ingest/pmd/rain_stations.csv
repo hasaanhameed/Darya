@@ -1,0 +1,121 @@
+id,pmd_name,name,lat,lon,province,basin
+astore,ASTORE,Astore,35.37,74.90,GB,indus
+babusar_top,BABUSAR TOP,Babusar Top,35.15,74.05,GB,indus
+badin,BADIN,Badin,24.64,68.90,Sindh,outside
+bahawalnagar,BAHAWALNAGAR,Bahawalnagar,29.99,73.25,Punjab,indus
+bahawalpur,BAHAWALPUR,Bahawalpur,29.40,71.68,Punjab,indus
+bahawalpur_ap,BAHAWALPUR(AP),Bahawalpur Airport,29.35,71.72,Punjab,indus
+balakot,BALAKOT,Balakot,34.55,73.35,KP,indus
+bannu,BANNU,Bannu,32.99,70.60,KP,indus
+barkhan,BARKHAN,Barkhan,29.90,69.52,Balochistan,indus
+bhakkar,BHAKKAR,Bhakkar,31.63,71.07,Punjab,indus
+bunji,BUNJI,Bunji,35.67,74.63,GB,indus
+chakwal,CHAKWAL,Chakwal,32.93,72.86,Punjab,indus
+chakwal_mur,CHAKWAL (MUR),Chakwal (MUR),32.93,72.86,Punjab,indus
+chhor,CHHOR,Chhor,25.52,69.78,Sindh,outside
+chilas,CHILLAS,Chilas,35.42,74.10,GB,indus
+cherat,CHIRAT,Cherat,33.82,71.55,KP,indus
+chitral,CHITRAL,Chitral,35.85,71.83,KP,indus
+dg_khan,D.G. KHAN,Dera Ghazi Khan,30.05,70.63,Punjab,indus
+di_khan,D.I.KHAN,Dera Ismail Khan,31.82,70.92,KP,indus
+dadu,DADU,Dadu,26.73,67.78,Sindh,indus
+dalbandin,DALBANDIN,Dalbandin,28.89,64.40,Balochistan,outside
+dir,DIR,Dir,35.20,71.88,KP,indus
+drosh,DROSH,Drosh,35.56,71.78,KP,indus
+faisalabad,FAISALABAD,Faisalabad,31.42,73.08,Punjab,indus
+garhi_dupatta,GARRHI DOPATTA,Garhi Dupatta,34.22,73.62,AJK,indus
+gwadar,GAWADAR,Gwadar,25.13,62.33,Balochistan,outside
+gilgit,GILGIT,Gilgit,35.92,74.33,GB,indus
+gujranwala,GUJRANWALA,Gujranwala,32.16,74.19,Punjab,indus
+gujrat,GUJRAT,Gujrat,32.57,74.08,Punjab,indus
+gupis,GUPIS,Gupis,36.23,73.40,GB,indus
+hunza,HUNZA,Hunza,36.32,74.65,GB,indus
+hyderabad,HYDERABAD,Hyderabad,25.38,68.37,Sindh,indus
+islamabad,ISLAMABAD,Islamabad,33.72,73.06,ICT,indus
+islamabad_ap,ISLAMABAD A/P,Islamabad Airport (old),33.62,73.10,Punjab,indus
+islamabad_bokra,ISLAMABAD BOKRA,Islamabad Bokra,33.65,72.95,ICT,indus
+islamabad_saidpur,ISLAMABAD SAIDPUR,Islamabad Saidpur,33.74,73.07,ICT,indus
+jacobabad,JACCOBABAD,Jacobabad,28.28,68.44,Sindh,indus
+jhang,JHANG,Jhang,31.27,72.32,Punjab,indus
+jhelum,JHELUM,Jhelum,32.93,73.73,Punjab,indus
+jiwani,JIWANI,Jiwani,25.05,61.75,Balochistan,outside
+joharabad,JOHARABAD,Joharabad,32.29,72.45,Punjab,indus
+kakul,KAKUL,Kakul,34.19,73.27,KP,indus
+kalam,KALAM,Kalam,35.49,72.58,KP,indus
+kalat,KALAT,Kalat,29.03,66.59,Balochistan,outside
+kamra,KAMRA,Kamra,33.87,72.40,Punjab,indus
+karachi_ap,KARACHI (AP),Karachi Airport,24.90,67.16,Sindh,outside
+karachi_faisal,KARACHI (FAISAL),Karachi Faisal,24.88,67.12,Sindh,outside
+karachi_masroor,KARACHI (MAS),Karachi Masroor,24.89,66.94,Sindh,outside
+kasur,KASUR,Kasur,31.12,74.45,Punjab,indus
+khanpur,KHANPUR,Khanpur,28.65,70.66,Punjab,indus
+khuzdar,KHUZDAR,Khuzdar,27.81,66.61,Balochistan,outside
+kohat,KOHAT,Kohat,33.58,71.44,KP,indus
+kot_addu,KOT ADDU,Kot Addu,30.47,70.97,Punjab,indus
+kotli,KOTLI,Kotli,33.52,73.90,AJK,indus
+lahore_ap,LAHORE (A.P),Lahore Airport,31.52,74.40,Punjab,indus
+lahore_pbo,LAHORE (PBO),Lahore PBO,31.55,74.34,Punjab,indus
+lahore_misri_shah,LAHORE MISRI SHAH,Lahore Misri Shah,31.58,74.35,Punjab,indus
+lahore_samanabad,LAHORE SAMANABAD,Lahore Samanabad,31.53,74.30,Punjab,indus
+lahore_shahdara,LAHORE SHAHDARA,Lahore Shahdara,31.62,74.28,Punjab,indus
+lahore_shahi_qilla,LAHORE SHAHI QILLA,Lahore Shahi Qilla,31.59,74.31,Punjab,indus
+lahore_upper_mall,LAHORE UPPER MALL,Lahore Upper Mall,31.55,74.36,Punjab,indus
+lahore_gulberg,"LAHORE, GULBERG",Lahore Gulberg,31.51,74.35,Punjab,indus
+lahore_gulshan_ravi,"LAHORE, GULSHAN RAVI",Lahore Gulshan Ravi,31.56,74.28,Punjab,indus
+lahore_iqbal_town,"LAHORE, IQBAL TOWN",Lahore Iqbal Town,31.51,74.29,Punjab,indus
+lahore_johar_town,"LAHORE, JOHAR TOWN",Lahore Johar Town,31.47,74.29,Punjab,indus
+lahore_lakshmi,"LAHORE, LUCKSHAMI",Lahore Lakshmi Chowk,31.57,74.32,Punjab,indus
+lahore_mughalpura,"LAHORE, MUGHAL PURA",Lahore Mughalpura,31.57,74.38,Punjab,indus
+lahore_tajpura,"LAHORE, TAJ PURA",Lahore Tajpura,31.58,74.41,Punjab,indus
+lahore_township,"LAHORE, TOWNSHIP",Lahore Township,31.45,74.31,Punjab,indus
+larkana,LARKANA,Larkana,27.56,68.21,Sindh,indus
+lasbela,LASBELA,Lasbela,26.22,66.32,Balochistan,outside
+layyah,LAYYAH,Layyah,30.96,70.94,Punjab,indus
+lower_dir,LOWER DIR,Lower Dir (Timergara),34.83,71.84,KP,indus
+mandi_bahauddin,M.B.DIN,Mandi Bahauddin,32.58,73.48,Punjab,indus
+malam_jabba,MALAM JABBA,Malam Jabba,34.80,72.57,KP,indus
+mangla,MANGLA,Mangla,33.12,73.64,AJK,indus
+mianwali,MIANWALI,Mianwali,32.58,71.53,Punjab,indus
+mirkhani,MIRKHANI,Mirkhani,35.48,71.76,KP,indus
+mirpur_khas,MIRPUR KHAS,Mirpur Khas,25.53,69.01,Sindh,outside
+mithi,MITHI,Mithi,24.74,69.80,Sindh,outside
+moenjodaro,MOENJODARO,Moenjodaro,27.32,68.14,Sindh,indus
+multan,MULTAN,Multan,30.20,71.43,Punjab,indus
+murree,MURREE,Murree,33.91,73.39,Punjab,indus
+muzaffarabad,MUZAFFARABAD,Muzaffarabad,34.37,73.47,AJK,indus
+nokkundi,NOKKUNDI,Nokkundi,28.82,62.75,Balochistan,outside
+noorpur_thal,NOORPUR THAL,Noorpur Thal,31.87,71.90,Punjab,indus
+okara,OKARA,Okara,30.81,73.45,Punjab,indus
+ormara,ORMARA,Ormara,25.21,64.64,Balochistan,outside
+padidan,PADIDAN,Padidan,26.77,68.30,Sindh,indus
+panjgur,PAJNGUR,Panjgur,26.97,64.10,Balochistan,outside
+parachinar,PARACHINAR,Parachinar,33.90,70.10,KP,indus
+pasni,PASNI,Pasni,25.26,63.47,Balochistan,outside
+pattan,PATTAN,Pattan,35.03,73.03,KP,indus
+peshawar,PESHAWAR,Peshawar,34.01,71.58,KP,indus
+peshawar_paf,PESHAWAR (PAF),Peshawar PAF,33.99,71.52,KP,indus
+quetta_pbo,QUETTA (PBO),Quetta PBO,30.19,67.01,Balochistan,outside
+quetta_sm,QUETTA (SM),Quetta (SM),30.25,66.94,Balochistan,outside
+rahim_yar_khan,R.Y.KHAN,Rahim Yar Khan,28.42,70.30,Punjab,indus
+rahwali,RAHWALI,Rahwali,32.24,74.13,Punjab,indus
+rawalakot,RAWALAKOT,Rawalakot,33.86,73.76,AJK,indus
+rawalpindi_dhamial,RAWALPINDI DHAMIAL,Rawalpindi Dhamial,33.56,73.03,Punjab,indus
+rawalpindi_shamsabad,RAWALPINDI SHAMSABAD,Rawalpindi Shamsabad,33.63,73.07,Punjab,indus
+risalpur,RISALPUR,Risalpur,34.07,71.99,KP,indus
+rohri,ROHRI,Rohri,27.69,68.90,Sindh,indus
+sahiwal,SAHIWAL,Sahiwal,30.67,73.11,Punjab,indus
+saidu_sharif,SAIDU SHARIF,Saidu Sharif,34.75,72.36,KP,indus
+sargodha,SARGODHA,Sargodha,32.08,72.67,Punjab,indus
+sargodha_paf,SARGODHA (PAF),Sargodha PAF,32.05,72.67,Punjab,indus
+shaheed_benazirabad,SHAHEED BENAZIRABAD,Shaheed Benazirabad (Nawabshah),26.25,68.40,Sindh,indus
+shorkot,SHORKOT,Shorkot,30.83,72.07,Punjab,indus
+sialkot,SIALKOT,Sialkot,32.50,74.53,Punjab,indus
+sialkot_ap,SIALKOT (A.P),Sialkot Airport,32.54,74.36,Punjab,indus
+sibi,SIBBI,Sibi,29.55,67.88,Balochistan,outside
+skardu,SKARDU,Skardu,35.30,75.68,GB,indus
+sukkur,SUKKUR,Sukkur,27.70,68.86,Sindh,indus
+toba_tek_singh,T.T. SINGH,Toba Tek Singh,30.97,72.48,Punjab,indus
+thatta,THATTA,Thatta,24.75,67.92,Sindh,outside
+turbat,TURBAT,Turbat,26.00,63.05,Balochistan,outside
+zhob,ZHOB,Zhob,31.35,69.45,Balochistan,indus
+ziarat,ZIARAT,Ziarat,30.38,67.73,Balochistan,outside
