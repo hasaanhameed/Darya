@@ -8,6 +8,7 @@ Raw data is **not in git**. Get it from the team drive and place it under `data/
 | Source | Provides | Coverage | History / cadence | Access | Status |
 |---|---|---|---|---|---|
 | **WAPDA Hydel Synopsis** | Reservoir level, inflow and outflow at WAPDA dams and barrages | Tarbela, Ghazi Barotha, Mangla, Warsak, Chashma, Jinnah (Gomal Zam dropped, ADR-017) | Daily, Jul 2022 – Oct 2026 (with gaps) | Spreadsheets received from WAPDA | **Obtained** |
+| **PMD daily rainfall** | Daily rain-gauge totals (mm) at PMD weather stations | 121 station names across Pakistan (about 50 with records from the early 1980s, many only from 2012) | Daily, 1981 – 2015 (with gaps) | One workbook received from PMD | **Obtained** (one-time historical load) |
 | PMD-FFD | River discharge and flood category at key sites; flood thresholds | Main rivers, incl. the Chenab, Ravi, Sutlej and lower Indus barrages | Live map; PDF bulletins 2024–25 | ffd.pmd.gov.pk (no public API found) | To investigate |
 | FFC Daily Flood Situation Report | Inflow, outflow and flood class per structure | Main dams and barrages | Daily PDFs (seen for the 2022–23 monsoons) | `ffc.gov.pk/wp-content/uploads/YYYY/MM/DFSR-DD-MM-YYYY.pdf` | To investigate |
 | IRSA daily flows | Rim-station inflows and barrage flows | Tarbela, Mangla, Nowshera, Marala, Indus barrages | Daily | pakirsa.gov.pk (unreachable during research); republished in news | To investigate |
@@ -191,6 +192,98 @@ Gomal Zam is in the files but is dropped (ADR-017).
 These nodes need FFD, FFC, IRSA or the historical-records request.
 
 **History gap:** WAPDA history starts in Jul 2022, but the proposal wants data from 2015. GloFAS reanalysis (loaded from 2015, see "GloFAS" below) fills it with modelled flow, which misses the size of flood peaks.
+
+---
+
+## PMD: daily station rainfall (1981 – 2015)
+
+### What it is
+Daily rainfall measured by rain gauges at Pakistan Meteorological Department (PMD) weather stations. It is the only measured rainfall we have from before 2000 (IMERG starts in 2000), so it gives models a long history of how rain turns into river flow. It is **historical data, loaded once**, like WAPDA.
+
+### File layout
+```
+data/pmd/
+  DAILY RAIN - ALL STATIONS - 1981-2015.xls
+```
+- One legacy `.xls` workbook (9.6 MB) with two sheets.
+- **`Sheet1` (the source of truth).** Row 1 is the header. Each later row is **one station-month**:
+
+| Col | Header | Content |
+|---|---|---|
+| A | `STATION` | Station name, upper case (see "Stations" below) |
+| B | `MONTH` | 1–12 |
+| C | `YEAR` | 1981–2015 |
+| D–AH | `1st` … `31st` | Rainfall for that day of the month |
+| AI | `TOT` | `=SUM(D:AH)` formula. Not used |
+| AJ | (no header) | Formula averages on 12 Peshawar 1998 rows only. Not used |
+
+- There are 34,718 rows. They are **not sorted** by station or date.
+- **`Sheet2`** holds monthly totals (`STATION`, `YEAR`, `MONTH`, `TOT`) for 56 of the stations. It is derived from `Sheet1`, so we don't use it.
+
+### Units and the rainfall day
+- **Units:** millimetres (mm). The file doesn't say so, but the values (median 0, 99th percentile 35 mm) only make sense in mm. Columns are named `rainfall_mm`.
+- **The rainfall day:** the file doesn't say which 24 hours a "day" covers. PMD normally reports rain over the 24 hours ending at 08:00 PKT (03:00 UTC) *(to verify with PMD)*. We store the date exactly as written, as a `date`.
+
+### Stations
+- **121 names** in the file. Two are the same station written two ways: `GUJRANWALA` and `GUJRANWALA ` (trailing space), and `T.T.  SINGH` has a double space. Names are matched after trimming and collapsing spaces.
+- Some spellings differ from the usual ones: `JACCOBABAD` (Jacobabad), `GARRHI DOPATTA` (Garhi Dupatta), `PAJNGUR` (Panjgur), `GAWADAR` (Gwadar), `SHAHEED BENAZIRABAD` (Nawabshah).
+- The file has **no coordinates and no basin**. Approximate ones are kept in `apps/backend/app/ingest/pmd/rain_stations.csv` *(to verify)*, with a `basin` tag: `indus` (drains to the Indus system) or `outside` (Makran coast, Kharan and Thar deserts, closed basins in Balochistan).
+- Lahore has many city gauges (`LAHORE, GULBERG`, `LAHORE, IQBAL TOWN`…), most with only 2015 data.
+
+### Coverage
+Days with a number, per station (survey of 2026-11-26):
+- **About 50 stations have long records starting 1981–1986** (7,000–13,000 days each; 12,784 days is complete). They include Astore, Gilgit, Bunji, Skardu, Chitral, Balakot, Muzaffarabad, Garhi Dopatta, Kotli, Murree, Islamabad, Islamabad A/P, Peshawar, Cherat, Kohat, Parachinar, D.I. Khan, Zhob, Jhelum, Sialkot, Lahore (PBO), Faisalabad, Multan, Bahawalnagar, Khanpur, Hyderabad, Karachi (AP), Badin, Padidan and Chhor.
+- **About 20 stations start between 2001 and 2007**, e.g. Chilas, Kalam, Malam Jabba, Saidu Sharif, Rawalakot, Sargodha, Jhang, M.B. Din, D.G. Khan, Kakul and Thatta.
+- **About 40 stations only have data from 2011 or 2012 onward**, e.g. Lahore (A.P), Bannu, Hunza, Dadu, Sukkur, Sahiwal, Okara, Turbat and the Lahore city gauges.
+- **Four stations have rows but no data at all:** Ziarat, Rahwali, Chakwal (MUR) and Karachi (Faisal), all 1981–2000.
+- Most stations have rows for every year back to 1981 even where the cells are blank. Those template rows simply produce no observations.
+
+### Cell values
+On the days that exist in each month, the cells hold:
+
+| Cell | Count | Meaning |
+|---|---|---|
+| A number | 650,648 | Rainfall in mm |
+| Blank | 400,448 | **Missing**, not zero. Months with no data still show `TOT` = 0 |
+| `----`, `---`, `-   ----` | ~4,970 | No reading (mostly 1981–2006) |
+| `*`, `**` | ~400 | No reading (mostly 2011–2015) |
+| `***` | 135 | Marks a day that doesn't exist, but here it is on a real day (e.g. 29 Feb in leap years, 29–31 Mar). Treated as no reading |
+| Garbled text | ~100 | Looks like a broken fixed-width import, e.g. `.0   1`, `e   .0`, `0.1 ***`. Not readable |
+
+`***` is the normal marker for days that don't exist (30 Feb, 31 Apr…).
+
+### Known quality issues
+Survey of 2026-11-26 over all 34,718 rows.
+- **Numbers on dates that don't exist (735, 80 of them non-zero):** 29 Feb in non-leap years, 30–31 Feb and the 31st of 30-day months. A non-zero value there suggests the days in that month are shifted by one or more columns.
+- **Duplicate station-months (153):** in 2012–2015, 13 stations (most KP stations, Quetta (SM), Islamabad Bokra, Rawalakot) have the same month twice. **125 pairs are identical; 28 differ.**
+- **Negative values (45):** mostly `-0.1` (29, almost all Murree 1988) and `-1` (9), plus single `-0.4`, `-2.1`, `-4`, `-9`, `-16.8` and `-99`. `-1` may be a code for trace rain *(to verify with PMD)*.
+- **`0.01` (821 values),** almost all at Islamabad (1981–2004) and D.I. Khan. Probably a trace code *(to verify)*. Kept as written.
+- **Extreme values:** 13 values ≥ 250 mm. Some are real, such as **Islamabad 591.9 mm on 24 Jul 2001** (the 2001 cloudburst) and several 240–300 mm values on 5–6 Sep 2014 around Islamabad, Rawalpindi and Lahore. Others are clearly wrong, such as **Moenjodaro 990 mm on 5 Feb 1982**.
+- **Values that look modelled:** Garhi Dopatta and Kotli have values with five to nine decimals on almost every day (e.g. `24.6876`, `0.00148744`). Gauges are read to 0.1 mm, so these are probably interpolated or modelled, not measured.
+
+### Parsing rules
+These follow ADR-024 (flag, never correct; the same spirit as ADR-017).
+1. Read only `Sheet1`. Ignore `TOT`, column AJ and `Sheet2`.
+2. Read every cell as text, exactly as written, and keep it as `rainfall_raw`.
+3. Turn each row into one record per day. Normalise the station name (trim, collapse spaces) and match it to `rain_stations.csv`.
+4. Skip days that don't exist in that month. Count them, and list any that hold a number in the review file.
+5. Skip blank cells: no reading means no row.
+6. Store every other cell: numbers as `rainfall_mm`, markers and garbled text with an empty `rainfall_mm` and a flag.
+7. Identical duplicate station-months become one. For duplicates that differ, keep the first copy (lowest sheet row) and flag it.
+8. Each record keeps `source_file` and `sheet_row` (the Excel row number) so any value can be traced back to the file.
+
+### Flags
+Each row in `pmd_rainfall` has a `flags` list. Rows with any flag marked **exclude** must be left out of training and scoring.
+
+| Flag | Meaning | Exclude? |
+|---|---|---|
+| `missing_marker` | The cell held a "no reading" marker (`----`, `*`, `***`…); the value is empty | **exclude** |
+| `not_numeric` | The cell held garbled text (e.g. `.0   1`); the value is empty | **exclude** |
+| `suspect_negative` | A negative value, kept as written (may be a trace code) | **exclude** |
+| `month_has_impossible_day` | That station-month has a non-zero value on a day that doesn't exist, so its days may be shifted | **exclude** |
+| `duplicate_conflict` | The station-month appears twice with different values; this is the first copy | **exclude** |
+| `not_gauge_precision` | The station's values look modelled, not measured (Garhi Dopatta, Kotli) | **exclude** |
+| `extreme_rainfall` | More than 300 mm in a day. Can be real (Islamabad 2001); needs a human check | no |
 
 ---
 
