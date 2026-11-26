@@ -8,7 +8,7 @@ Raw data is **not in git**. Get it from the team drive and place it under `data/
 | Source | Provides | Coverage | History / cadence | Access | Status |
 |---|---|---|---|---|---|
 | **WAPDA Hydel Synopsis** | Reservoir level, inflow and outflow at WAPDA dams and barrages | Tarbela, Ghazi Barotha, Mangla, Warsak, Chashma, Jinnah (Gomal Zam dropped, ADR-017) | Daily, Jul 2022 – Oct 2026 (with gaps) | Spreadsheets received from WAPDA | **Obtained** |
-| **PMD daily rainfall** | Daily rain-gauge totals (mm) at PMD weather stations | 120 stations across Pakistan (about 50 with records from the early 1980s, many only from 2012) | Daily, 1981 – 2015 (with gaps) | One workbook received from PMD | **Obtained** (one-time historical load) |
+| **PMD daily rainfall** | Daily rain-gauge totals (mm) at PMD weather stations | 120 stations across Pakistan (about 50 with records from the early 1980s, many only from 2012) | Daily, 1981 – 2015 (with gaps) | One workbook received from PMD | **Loaded** (one-time historical load; ADR-023/024) |
 | PMD-FFD | River discharge and flood category at key sites; flood thresholds | Main rivers, incl. the Chenab, Ravi, Sutlej and lower Indus barrages | Live map; PDF bulletins 2024–25 | ffd.pmd.gov.pk (no public API found) | To investigate |
 | FFC Daily Flood Situation Report | Inflow, outflow and flood class per structure | Main dams and barrages | Daily PDFs (seen for the 2022–23 monsoons) | `ffc.gov.pk/wp-content/uploads/YYYY/MM/DFSR-DD-MM-YYYY.pdf` | To investigate |
 | IRSA daily flows | Rim-station inflows and barrage flows | Tarbela, Mangla, Nowshera, Marala, Indus barrages | Daily | pakirsa.gov.pk (unreachable during research); republished in news | To investigate |
@@ -297,7 +297,9 @@ Each row in `pmd_rainfall` has a `flags` list. Rows with any flag marked **exclu
 | `not_gauge_precision` | The station's values look modelled, not measured (Garhi Dopatta, Kotli) | **exclude** |
 | `extreme_rainfall` | More than 300 mm in a day. Can be real (Islamabad 2001); needs a human check | no |
 
-**First dry run (2026-11-26):** 651,552 rows for 116 stations (the 4 empty ones have none), 1 Jan 1981 – 30 Nov 2015. 645,999 rows hold a number and 618,589 have no flags.
+**First full run (2026-11-26):** loaded 120 stations into `rain_stations` and 651,552 rows into `pmd_rainfall` for 116 stations (the 4 empty ones have none), 1 Jan 1981 – 30 Nov 2015, in about 3 minutes. 645,999 rows hold a number and 618,589 have no flags. A second run left the counts unchanged.
+- **Rows per year** are about 18,000 in 1981–2000, drop to 11,000–14,600 in 2001–2010 (several stations stop in 2000, and Garhi Dopatta has no 2010 data), and rise to about 34,000 in 2012–2015 when the newer stations start.
+- **Sanity check:** mean July–September totals on unflagged rows are Murree 762 mm, Islamabad 753, Lahore (PBO) 446, D.I. Khan 171, Peshawar 161, Karachi (AP) 130, Multan 120, Gilgit 45 and Skardu 43, which fits Pakistan's monsoon pattern.
 - Rows per flag: `not_gauge_precision` 24,774; `missing_marker` 5,486; `month_has_impossible_day` 1,766; `duplicate_conflict` 852; `not_numeric` 67; `suspect_negative` 45; `extreme_rainfall` 5.
 - The 5 extreme values: Dir 422.5 mm (26 Mar 1983), Islamabad 591.9 mm (24 Jul 2001), Jacobabad 305 mm (10 Sep 2012), Moenjodaro 990 mm (5 Feb 1982) and Murree 323.4 mm (19 Jul 1987).
 - Review them in `data/pmd/processed/`: `review.csv` (every row with its flags), `impossible_day_values.csv` (the 80 non-zero values on days that don't exist) and `duplicate_conflicts.csv` (the 28 months whose copies differ, with both Excel rows).

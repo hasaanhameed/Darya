@@ -29,7 +29,7 @@ Do not introduce a new framework or service without adding an ADR to `docs/DECIS
 |---|---|
 | `docs/ARCHITECTURE.md` | You need components, core concepts (node, reach, twin state) or invariants. |
 | `docs/FLOW.md` | You need the order of operations: ingestion → twin → forecast → risk → API → UI. |
-| `docs/DATA.md` | You touch any data source. It includes the WAPDA spreadsheet layout and its quality issues. |
+| `docs/DATA.md` | You touch any data source. It includes the WAPDA and PMD rainfall spreadsheet layouts and their quality issues. |
 | `docs/DECISIONS.md` | You check whether something is decided, or record a new decision. |
 | `docs/PROGRESS.md` | You need current status, milestones or who owns what. |
 
@@ -38,7 +38,7 @@ Do not introduce a new framework or service without adding an ADR to `docs/DECIS
   - Every column, field and API value must name its unit, e.g. `inflow_cfs`, `level_ft`.
   - Convert units only at clearly defined boundaries, such as model input or display.
 - **Time:** store timestamps as timezone-aware UTC. Display them in PKT (UTC+5).
-  - Daily WAPDA values are for a reporting day, so store them as a `date`, not a timestamp.
+  - Daily WAPDA values and PMD rainfall totals are for a reporting day, so store them as a `date`, not a timestamp.
 - **Provenance:** every observation records its `source`, `observed_at` and `ingested_at`.
   - Forecasts and backtests may only use data that was available at the forecast time. Never leak future data.
 - **Flood categories:** match PMD-FFD's flood categories (Low → Exceptional) wherever a site has published thresholds. See `docs/DATA.md`.

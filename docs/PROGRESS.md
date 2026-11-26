@@ -38,7 +38,9 @@ The first priority is a thin end-to-end slice: one river, one data source of eac
 - [ ] Phase 1: GloFAS v4.0 reanalysis (2015 onward) into `glofas_discharge`
 - [ ] Phase 2: IMERG Late catchment rainfall into `imerg_rainfall`
 - [ ] Phase 3: Sentinel-1 water extent per reach (needs reach and PostGIS decisions first)
-- [ ] PMD rainfall: load 1981–2015 into `rain_stations` and `pmd_rainfall` (branch `feat/pmd-rainfall-ingestion`)
+- [x] PMD rainfall: load 1981–2015 into `rain_stations` and `pmd_rainfall` (branch `feat/pmd-rainfall-ingestion`)
+- [ ] PMD rainfall: manual check of the 5 `extreme_rainfall` values and the review files in `data/pmd/processed/`
+- [ ] PMD rainfall: link each station to the node catchments (ADR-022), replacing the hand-made `basin` tag
 - [ ] **Before modelling with PMD rainfall:** verify station coordinates and basin tags in `app/ingest/pmd/rain_stations.csv`, and ask PMD about the rainfall-day window and trace codes (checklist in `docs/DATA.md`, PMD section)
 - [ ] Discuss the data-source review findings below as a team, and record what we accept in `docs/DECISIONS.md`
 
@@ -54,6 +56,7 @@ An independent review checked the planned sources (table in `docs/DATA.md`). Not
 - **For the later water-detection model,** consider Kuro Siwo, which is much larger than Sen1Floods11.
 
 ## Log
+- **2026-11-26** (Rohail): Loaded the PMD daily rainfall history (1981–2015) into the dev DB: 120 stations in `rain_stations` and 651,552 rows in `pmd_rainfall` (116 stations with data), with flags. Survey, rules and results in `docs/DATA.md`; ADR-023 (storage) and ADR-024 (cleaning). Command: `python -m scripts.ingest_pmd` from `apps/backend`. Station coordinates are approximate; verify them before modelling.
 - **2026-11-22** (Hasaan): Satellite and model ingestion phase 0. Seeded all 21 prototype nodes, added the geo and source-client libraries (all install on Python 3.14), and optional source credentials in settings. ADR-019 (one table per source) and ADR-020 (xarray and geo libraries). Next: GloFAS (phase 1).
 - **2026-11-10** (Hasaan): Ran an independent review of the planned data sources. Added a "what each source is for" table to `docs/DATA.md` and the open findings above.
 - **2026-10-18** (Hasaan): Loaded the WAPDA history into `daily_observations` on the dev DB: 7,668 rows (1,278 days × 6 stations, Jul 2022 – Oct 2026), with flags. Command: `python -m scripts.ingest_wapda` from `apps/backend`.
