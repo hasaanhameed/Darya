@@ -23,6 +23,8 @@ pip install -r requirements.txt
 | WAPDA load | `python -m scripts.ingest_wapda` (`--dry-run` writes only `data/wapda/processed/review.csv`) |
 | GloFAS load | `python -m scripts.ingest_glofas --start 2015-01-01 [--end YYYY-MM-DD] [--dry-run]` (needs `EWDS_API_KEY`; files are cached in `data/glofas/raw/`) |
 | GloFAS cells | `python -m scripts.match_glofas_cells` (re-creates `app/ingest/glofas/node_grid_cells.csv`; review it before committing) |
+| Catchments | `python -m scripts.build_node_catchments` (writes `data/imerg/processed/catchment_weights.csv`; run once, before the IMERG load) |
+| IMERG load | `python -m scripts.ingest_imerg --start 2015-01-01 [--end YYYY-MM-DD] [--dry-run]` (needs `EARTHDATA_USERNAME`/`EARTHDATA_PASSWORD`; files are cached in `data/imerg/raw/`) |
 
 Configuration lives in `app/core/config.py`, which reads environment variables through `pydantic-settings`.
 - Put local values in `.env`, which is git-ignored. Keep `.env.example` committed and up to date.
@@ -34,17 +36,19 @@ The code is organised by domain. Folders marked *(planned)* don't exist yet.
 app/
   main.py          FastAPI app factory, router registration (planned)
   core/            settings, async DB engine/session
-  models/          SQLAlchemy tables: Node, DailyObservation, GlofasDischarge
+  models/          SQLAlchemy tables: Node, DailyObservation, GlofasDischarge, ImergRainfall
   routes/          API routers + Pydantic request/response schemas (empty)
   ingest/wapda/    station_aliases → sheet_finder → sheet_parser → cleaning → load_to_db
   ingest/glofas/   request_builder → file_downloader → grid_reader → cleaning → load_to_db
                    (grid_cell_matcher + node_grid_cells.csv: each node's grid cell)
-  ingest/<source>/ one package per further source (imerg, sentinel1, ...) (planned)
+  ingest/imerg/    request_builder → file_downloader → catchment_averager → cleaning → load_to_db
+                   (catchment_builder: each node's catchment and local area, as IMERG cell weights)
+  ingest/<source>/ one package per further source (sentinel1, ...) (planned)
   twin/            reach state updates, history (planned)
   forecast/        baselines, LSTM/GNN wrappers, forecast runs (planned)
   risk/            category mapping, reasons, alert rules (planned)
 alembic/           migrations
-scripts/           CLI jobs, e.g. ingest_wapda.py, ingest_glofas.py
+scripts/           CLI jobs, e.g. ingest_wapda.py, ingest_glofas.py, ingest_imerg.py
 tests/
 ```
 The API never imports `ingest`. Only scripts (and a scheduler, later) call it.

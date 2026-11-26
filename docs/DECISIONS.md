@@ -210,8 +210,8 @@ This is a log of significant technical decisions, kept as lightweight ADRs.
     - xarray reads grids, through the netCDF4 engine;
     - rasterio and rioxarray read rasters;
     - geopandas reads polygons;
-    - regionmask weights grid cells inside catchments.
-  - **Clients:** `cdsapi` (GloFAS), `earthaccess` and `harmony-py` (IMERG), and `pystac-client`, `planetary-computer` and `odc-stac` (Sentinel-1).
+    - pyflwdir traces catchments on flow-direction grids (ADR-022).
+  - **Clients:** `cdsapi` (GloFAS), `harmony-py` (IMERG), and `pystac-client`, `planetary-computer` and `odc-stac` (Sentinel-1).
   - **Gridded data becomes a pandas DataFrame at the module boundary** (e.g. one row per node per day). Cleaning and loading stay in pandas, as for WAPDA.
   - All of these install from wheels on the dev venv (Python 3.14, GDAL 3.12 bundled with rasterio), so no system GDAL is needed.
 - Consequences:
@@ -234,6 +234,23 @@ This is a log of significant technical decisions, kept as lightweight ADRs.
 - Consequences:
   - We get a consistent daily flow series for all 21 nodes from 2015, for training and live use.
   - **Moving to v5** means re-matching the cells and doing a full reload. Plan it once v5 forecasts and v5 intermediate data are both available (expected Dec 2026 or later).
+
+## ADR-022: IMERG Late rainfall averaged over catchments traced on GloFAS's river map
+- Date: 2026-11-26
+- Status: Accepted
+- Context:
+  - Rain over each node's catchment (the land that drains into it) is a main forecast input.
+  - **IMERG choice:** IMERG Final stopped at 2025-09-30 while its V08 is prepared, and the Late run (~14 h delay) is what a live system would use.
+  - **Catchment choice:** catchment outlines could come from HydroBASINS polygons or from GloFAS's own flow-direction (LDD) grid. An independent review compared the two and recommended GloFAS.
+- Decision:
+  - **Rainfall product:** IMERG daily **Late** V07 (`GPM_3IMERGDL`), for both training and live use. Fetched through NASA Harmony, cut to our area and to the `precipitation` variable only.
+  - **Catchment map:** catchments are traced upstream from each node's GloFAS cell (`node_grid_cells.csv`) on the **GloFAS v4.0 LDD grid**, with `pyflwdir`. HydroBASINS is not used.
+- Consequences:
+  - Rain and flow describe the same water. GloFAS's quirks, such as the Chenab joining the Jhelum at Rasul, appear the same way in both.
+  - The tracing checks itself: a catchment's area must match GloFAS's upstream area at the node's cell.
+  - Outlines are on a 5 km grid. That is finer than IMERG's 10 km and changes catchment averages by about 1% at our catchment sizes (24,000–830,000 km²).
+  - Flat irrigated plains drain on the map to whichever river they reach, and canals aren't represented. Rain there adds little to river flow, so the model has to learn that.
+  - Record version labels change within V07 (V07B, V07C). V08 means re-downloading and reloading everything.
 
 ---
 
