@@ -267,7 +267,7 @@ On the days that exist in each month, the cells hold:
 ### Known quality issues
 Survey of 2026-11-26 over all 34,718 rows.
 - **Numbers on dates that don't exist (735, 80 of them non-zero):** 29 Feb in non-leap years, 30–31 Feb and the 31st of 30-day months. A non-zero value there suggests the days in that month are shifted by one or more columns.
-- **Duplicate station-months (153):** in 2012–2015, 13 stations (most KP stations, Quetta (SM), Islamabad Bokra, Rawalakot) have the same month twice. **125 pairs are identical; 28 differ.**
+- **Duplicate station-months (153):** in 2012–2015, 13 stations (most KP stations, Quetta (SM), Islamabad Bokra, Rawalakot) have the same month twice. **125 pairs are identical; 28 differ:** 20 at Quetta (SM) and 8 at Islamabad Bokra.
 - **Negative values (45):** mostly `-0.1` (29, almost all Murree 1988) and `-1` (9), plus single `-0.4`, `-2.1`, `-4`, `-9`, `-16.8` and `-99`. `-1` may be a code for trace rain *(to verify with PMD)*.
 - **`0.01` (821 values),** almost all at Islamabad (1981–2004) and D.I. Khan. Probably a trace code *(to verify)*. Kept as written.
 - **Extreme values:** 13 values ≥ 250 mm. Some are real, such as **Islamabad 591.9 mm on 24 Jul 2001** (the 2001 cloudburst) and several 240–300 mm values on 5–6 Sep 2014 around Islamabad, Rawalpindi and Lahore. Others are clearly wrong, such as **Moenjodaro 990 mm on 5 Feb 1982**.
@@ -279,7 +279,7 @@ These follow ADR-024 (flag, never correct; the same spirit as ADR-017).
 2. Read every cell as text, exactly as written, and keep it as `rainfall_raw`.
 3. Turn each row into one record per day. Normalise the station name (trim, collapse spaces) and match it to `rain_stations.csv`.
 4. Skip days that don't exist in that month. Count them, and list any that hold a number in the review file.
-5. Skip blank cells: no reading means no row.
+5. Skip blank cells: no reading means no row. Cells holding only spaces (3 of them) count as blank.
 6. Store every other cell: numbers as `rainfall_mm`, markers and garbled text with an empty `rainfall_mm` and a flag.
 7. Identical duplicate station-months become one. For duplicates that differ, keep the first copy (lowest sheet row) and flag it.
 8. Each record keeps `source_file` and `sheet_row` (the Excel row number) so any value can be traced back to the file.
