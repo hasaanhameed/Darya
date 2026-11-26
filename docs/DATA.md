@@ -297,6 +297,11 @@ Each row in `pmd_rainfall` has a `flags` list. Rows with any flag marked **exclu
 | `not_gauge_precision` | The station's values look modelled, not measured (Garhi Dopatta, Kotli) | **exclude** |
 | `extreme_rainfall` | More than 300 mm in a day. Can be real (Islamabad 2001); needs a human check | no |
 
+**First dry run (2026-11-26):** 651,552 rows for 116 stations (the 4 empty ones have none), 1 Jan 1981 – 30 Nov 2015. 645,999 rows hold a number and 618,589 have no flags.
+- Rows per flag: `not_gauge_precision` 24,774; `missing_marker` 5,486; `month_has_impossible_day` 1,766; `duplicate_conflict` 852; `not_numeric` 67; `suspect_negative` 45; `extreme_rainfall` 5.
+- The 5 extreme values: Dir 422.5 mm (26 Mar 1983), Islamabad 591.9 mm (24 Jul 2001), Jacobabad 305 mm (10 Sep 2012), Moenjodaro 990 mm (5 Feb 1982) and Murree 323.4 mm (19 Jul 1987).
+- Review them in `data/pmd/processed/`: `review.csv` (every row with its flags), `impossible_day_values.csv` (the 80 non-zero values on days that don't exist) and `duplicate_conflicts.csv` (the 28 months whose copies differ, with both Excel rows).
+
 ---
 
 ## Other sources: notes

@@ -21,6 +21,7 @@ pip install -r requirements.txt
 | Tests | `pytest` (fast only: `pytest -m "not integration"`) |
 | Migrations | `alembic revision --autogenerate -m "<msg>"`, then `alembic upgrade head` |
 | WAPDA load | `python -m scripts.ingest_wapda` (`--dry-run` writes only `data/wapda/processed/review.csv`) |
+| PMD rainfall | `python -m scripts.ingest_pmd --dry-run` (writes `review.csv`, `impossible_day_values.csv` and `duplicate_conflicts.csv` to `data/pmd/processed/`; the database load is not built yet) |
 | GloFAS load | `python -m scripts.ingest_glofas --start 2015-01-01 [--end YYYY-MM-DD] [--dry-run]` (needs `EWDS_API_KEY`; files are cached in `data/glofas/raw/`) |
 | GloFAS cells | `python -m scripts.match_glofas_cells` (re-creates `app/ingest/glofas/node_grid_cells.csv`; review it before committing) |
 | Catchments | `python -m scripts.build_node_catchments` (writes `data/imerg/processed/catchment_weights.csv`; run once, before the IMERG load) |
