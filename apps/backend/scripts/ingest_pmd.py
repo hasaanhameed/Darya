@@ -2,14 +2,18 @@
 
 Run from apps/backend:
     python -m scripts.ingest_pmd --dry-run     # write review files to data/pmd/processed/, no database
+    python -m scripts.ingest_pmd               # also replace rain_stations and pmd_rainfall in the database
 """
 
 import argparse
+import asyncio
 from pathlib import Path
 
 import pandas as pd
 
+from app.core.database import SessionLocal, engine
 from app.ingest.pmd.cleaning import CleaningReport, clean_rows
+from app.ingest.pmd.load_to_db import load_rows
 from app.ingest.pmd.sheet_parser import parse_rain_rows, read_rain_sheet
 from app.ingest.pmd.station_names import add_station_ids, read_station_catalog
 
@@ -46,6 +50,13 @@ def print_summary(cells: pd.DataFrame, rows: pd.DataFrame, report: CleaningRepor
     print(rows["flags"].explode().value_counts().sort_index().to_string())
 
 
+async def load_into_database(stations: pd.DataFrame, rows: pd.DataFrame) -> int:
+    async with SessionLocal() as session:
+        inserted = await load_rows(session, stations, rows)
+    await engine.dispose()
+    return inserted
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--data-dir", type=Path, default=DEFAULT_DATA_DIR, help="folder with the PMD workbook")
@@ -53,18 +64,21 @@ def main() -> None:
     parser.add_argument("--dry-run", action="store_true", help="write review files instead of loading the database")
     args = parser.parse_args()
 
-    if not args.dry_run:
-        raise SystemExit("Loading into the database isn't built yet. Use --dry-run.")
-
     workbook = args.file or find_workbook(args.data_dir)
+    stations = read_station_catalog()
     cells = parse_rain_rows(read_rain_sheet(workbook), workbook.name)
-    cells = add_station_ids(cells, read_station_catalog())
+    cells = add_station_ids(cells, stations)
     rows, report = clean_rows(cells)
     print_summary(cells, rows, report)
 
     review_folder = args.data_dir / "processed"
     write_review_files(rows, report, review_folder)
     print(f"Review files: {review_folder} (review.csv, impossible_day_values.csv, duplicate_conflicts.csv)")
+
+    if not args.dry_run:
+        # parsing and cleaning above are blocking pandas work, so only the database step runs async
+        inserted = asyncio.run(load_into_database(stations, rows))
+        print(f"Loaded {len(stations)} stations into rain_stations and {inserted} rows into pmd_rainfall")
 
 
 if __name__ == "__main__":
