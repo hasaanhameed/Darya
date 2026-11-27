@@ -35,8 +35,8 @@ The first priority is a thin end-to-end slice: one river, one data source of eac
 - [x] Write the WAPDA parser and load Jul 2022 – Oct 2026 into PostgreSQL
 - [ ] WAPDA back-fill from the "last year" columns (467 missing days, see `docs/DATA.md`)
 - [x] Satellite and model ingestion phase 0: all nodes seeded, geo libraries, ADR-019/020
-- [ ] Phase 1: GloFAS v4.0 reanalysis (2015 onward) into `glofas_discharge`
-- [ ] Phase 2: IMERG Late catchment rainfall into `imerg_rainfall`
+- [x] Phase 1: GloFAS v4.0 reanalysis (2015 onward) into `glofas_discharge`
+- [x] Phase 2: IMERG Late catchment rainfall into `imerg_rainfall`
 - [ ] Phase 3: Sentinel-1 water extent per reach (needs reach and PostGIS decisions first)
 - [ ] Discuss the data-source review findings below as a team, and record what we accept in `docs/DECISIONS.md`
 
@@ -52,6 +52,8 @@ An independent review checked the planned sources (table in `docs/DATA.md`). Not
 - **For the later water-detection model,** consider Kuro Siwo, which is much larger than Sen1Floods11.
 
 ## Log
+- **2026-11-27** (Hasaan): Satellite ingestion phase 1, GloFAS. v4.0 river discharge (ADR-021) at each node's matched grid cell. Loaded 91,182 rows into `glofas_discharge` (21 nodes, 2015-01-01 to 2026-11-21; consolidated to 2026-06-30, intermediate after; no flags, no duplicates). Against WAPDA (Jul–Dec 2022) it tracks Tarbela well (r 0.88) but misses the 2022 flood peaks; details in `docs/DATA.md`.
+- **2026-11-26** (Hasaan): Satellite ingestion phase 2, IMERG. Daily Late V07 rainfall via NASA Harmony, averaged over each node's full catchment and local area (traced on the GloFAS river map, ADR-022). Loaded 91,266 rows into `imerg_rainfall` (21 nodes, 2015-01-01 to 2026-11-24, no flags, no duplicates). Aug 2022 local rain is highest at Sukkur and Kotri (about 10 mm/day). Downloads now retry after network errors.
 - **2026-11-22** (Hasaan): Satellite and model ingestion phase 0. Seeded all 21 prototype nodes, added the geo and source-client libraries (all install on Python 3.14), and optional source credentials in settings. ADR-019 (one table per source) and ADR-020 (xarray and geo libraries). Next: GloFAS (phase 1).
 - **2026-11-10** (Hasaan): Ran an independent review of the planned data sources. Added a "what each source is for" table to `docs/DATA.md` and the open findings above.
 - **2026-10-18** (Hasaan): Loaded the WAPDA history into `daily_observations` on the dev DB: 7,668 rows (1,278 days × 6 stations, Jul 2022 – Oct 2026), with flags. Command: `python -m scripts.ingest_wapda` from `apps/backend`.

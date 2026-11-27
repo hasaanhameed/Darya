@@ -12,10 +12,10 @@ Raw data is **not in git**. Get it from the team drive and place it under `data/
 | FFC Daily Flood Situation Report | Inflow, outflow and flood class per structure | Main dams and barrages | Daily PDFs (seen for the 2022–23 monsoons) | `ffc.gov.pk/wp-content/uploads/YYYY/MM/DFSR-DD-MM-YYYY.pdf` | To investigate |
 | IRSA daily flows | Rim-station inflows and barrage flows | Tarbela, Mangla, Nowshera, Marala, Indus barrages | Daily | pakirsa.gov.pk (unreachable during research); republished in news | To investigate |
 | Historical gauge records | Long gauge history (2015 onward) | All prototype nodes | Daily | Formal request to FFD/WAPDA through our advisor | To request (first M1 task) |
-| GloFAS reanalysis | Modelled daily river discharge (m³/s) | Global, 0.05° grid | 1979 – near real time | Copernicus **EWDS**, `cdsapi` | **Ingesting** (v4.0, 2015 onward; ADR-021) |
+| GloFAS reanalysis | Modelled daily river discharge (m³/s) | Global, 0.05° grid | 1979 – near real time | Copernicus **EWDS**, `cdsapi` | **Loaded** (v4.0, 2015-01-01 to 2026-11-21; ADR-021) |
 | Sentinel-1 SAR | Radar backscatter that sees through cloud, for water detection | Global, 10 m | 6-day repeat (S1C+S1D); 12-day during 2022–25 | CDSE / Planetary Computer / GEE / ASF | Planned |
 | Sentinel-2 | Optical imagery for checking water maps on clear days | Global, 10–20 m | ~5 days | CDSE / Planetary Computer / GEE | Planned |
-| GPM IMERG | Satellite rainfall | Global, 0.1°, half-hourly / daily | 2000 onward | NASA GES DISC via Harmony (`harmony-py`) | **Loading** (daily Late V07, 2015 onward; ADR-022) |
+| GPM IMERG | Satellite rainfall | Global, 0.1°, half-hourly / daily | 2000 onward | NASA GES DISC via Harmony (`harmony-py`) | **Loaded** (daily Late V07, 2015-01-01 to 2026-11-24; ADR-022) |
 | HydroRIVERS | River network with flow direction | Global vector | Static | hydrosheds.org | Planned (river graph) |
 | JRC Global Surface Water | Where water is normally present | Global, 30 m | 1984–2021 (v1.4) + 2022–24 | JRC download / GEE | Planned (channel mask) |
 | Sen1Floods11 | Labelled Sentinel-1 flood chips for training U-Net | 11 global events | Static, ~14 GB | `gs://sen1floods11` | Planned |
