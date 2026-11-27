@@ -56,7 +56,7 @@ docs/          project documentation
 |---|---|
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | you need the big picture: components, core concepts, invariants |
 | [docs/FLOW.md](docs/FLOW.md) | you want to know how data and operations move through the system |
-| [docs/DATA.md](docs/DATA.md) | you work with any data source (including the raw WAPDA files) |
+| [docs/DATA.md](docs/DATA.md) | you work with any data source (including the raw WAPDA and PMD rainfall files) |
 | [docs/DECISIONS.md](docs/DECISIONS.md) | you make or question a technical choice |
 | [docs/PROGRESS.md](docs/PROGRESS.md) | you want to see where the project stands |
 | [apps/backend/CLAUDE.md](apps/backend/CLAUDE.md) | you work on the backend |
@@ -65,7 +65,7 @@ docs/          project documentation
 ## Getting started
 The code is not scaffolded yet. Setup steps will be added here.
 
-Raw data is **not** in git. Get it from the team drive and place it under `data/`. For example, the WAPDA archives go in `data/wapda/`. See [docs/DATA.md](docs/DATA.md).
+Raw data is **not** in git. Get it from the team drive and place it under `data/`. For example, the WAPDA archives go in `data/wapda/` and the PMD rainfall workbook in `data/pmd/`. See [docs/DATA.md](docs/DATA.md).
 
 ## Team
 | | |
