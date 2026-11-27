@@ -1,7 +1,7 @@
 # Handover: PMD daily rainfall (1981 – 2015)
 
-**Status (2026-11-26, Rohail):** the ingestion pipeline is built, tested and loaded into the dev database. What's left is checking the data and linking it to the river network. See "Next steps" below.
-**Branch:** `feat/pmd-rainfall-ingestion`, started from Hasaan's `feat/satellite-ingestion`, so it contains all of his GloFAS/IMERG work too.
+**Status (2026-11-27, Rohail):** the ingestion pipeline is built, tested, loaded into the dev database and **waiting for review** in [pull request #1](https://github.com/hasaanhameed/Darya/pull/1). What's left is the review, checking the data and linking it to the river network. See "Next steps" below.
+**Branch:** `feat/pmd-rainfall-ingestion` (pushed), started from Hasaan's `feat/satellite-ingestion`, so it contains all of his GloFAS/IMERG work too.
 
 ## Read first
 1. `docs/DATA.md` → "PMD: daily station rainfall": file layout, stations, coverage, quality issues, parsing rules, flags and the first-run results. **Read its "Check before using PMD rainfall for modelling" box.**
@@ -32,6 +32,7 @@ python -m scripts.ingest_pmd             # also replace rain_stations and pmd_ra
 The load is safe to re-run: it replaces both PMD tables in one transaction and never touches other tables.
 
 ## Next steps
+0. **Review and merge [pull request #1](https://github.com/hasaanhameed/Darya/pull/1)** (Hasaan or Ali). It targets `feat/satellite-ingestion`, so it shows only the PMD commits. Once that branch is merged into `main`, retarget the pull request to `main`.
 1. **Verify the station coordinates and basin tags** in `rain_stations.csv` against an official PMD station list or a map, then re-run the load. They are approximate (about ±0.05°) and came from general knowledge, not from PMD. The doubtful basin tags are listed in `docs/DATA.md`.
 2. **Check the review files by hand:**
    - the 5 `extreme_rainfall` values: Dir 422.5 mm, Islamabad 591.9 mm (real, the 2001 cloudburst), Jacobabad 305 mm, Moenjodaro 990 mm (almost certainly wrong) and Murree 323.4 mm;
@@ -50,4 +51,4 @@ The load is safe to re-run: it replaces both PMD tables in one transaction and n
 - **The shared dev database is on our migration `38e33b60eddb`** (after Hasaan's `bac4c793a2cb`). If anyone adds a migration on another branch, set its `down_revision` to `38e33b60eddb` (check with `alembic heads`; there must be only one head).
 - **The next ADR number is ADR-025.**
 - Expect conflicts in `docs/DATA.md`, `docs/DECISIONS.md`, `docs/PROGRESS.md`, `docs/FLOW.md` and `apps/backend/CLAUDE.md` if both branches keep changing them. Keep both sides.
-- **Nothing has been pushed yet.** The branch has no upstream on purpose, so a plain `git push` can't land on Hasaan's branch. Push it with `git push -u origin feat/pmd-rainfall-ingestion` and open a pull request for review.
+- **The branch is pushed** and tracks `origin/feat/pmd-rainfall-ingestion` (not Hasaan's branch), so `git push` from it only updates this pull request.
